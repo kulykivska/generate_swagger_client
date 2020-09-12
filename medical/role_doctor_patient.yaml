@@ -1,0 +1,20 @@
+delete:
+  summary: Sends a request to remove a patient
+  operationId: rest.dummy.delete
+  security:
+    - session: []
+    - in: query
+      name: patientId
+      required: true
+      schema:
+        type: string
+      description: Patient ID
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: "../medical/components/patient.yaml"
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

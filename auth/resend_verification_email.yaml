@@ -1,0 +1,18 @@
+post:
+  summary: Resend verification email to user
+  operationId: rest.auth.resend_verification_email.post
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../components/components.yaml#/components/requestBodies/resetPasswordBody'
+  responses:
+    204:
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

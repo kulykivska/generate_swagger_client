@@ -1,0 +1,110 @@
+components:
+  #-------------------------------
+  # Reusable variables
+  #-------------------------------
+  schemas:
+    operator:
+      type: string
+      enum: [lt, lte, eq, neq, gt, gte]
+      example: eq
+    one_of_any:
+      oneOf:
+        - type: string
+        - type: number
+        - type: object
+    date_time:
+      type: string
+      format: date-time
+      example: '2020-02-25T08:41:10+00:00'
+    coords:
+      type: object
+      required:
+        - lat
+        - lon
+      properties:
+        lat:
+          type: number
+          example: 38.8951
+        lon:
+          type: number
+          example: -77.0364
+    country:
+      type: object
+      required:
+        - alpha2
+        - full_name
+      properties:
+        alpha2:
+          type: string
+          example: UA
+        full_name:
+          type: string
+          example: Ukraine
+    location:
+      type: object
+      required:
+        - country
+        - city
+        - center
+      properties:
+        country:
+          $ref: '#/components/schemas/country'
+        region:
+          type: string
+          example: California
+        subregion:
+          type: string
+          example: Sonoma County
+        province:
+          type: string
+          example: Bodega bay
+        city:
+          type: string
+          example: Irvine
+        street:
+          type: string
+        center:
+          $ref: '#/components/schemas/coords'
+    viewport:
+      type: object
+      required:
+        - northeast
+        - southwest
+      properties:
+        northeast:
+          $ref: '#/components/schemas/coords'
+        southwest:
+          $ref: '#/components/schemas/coords'
+    connection_status:
+      type: string
+      enum: [Pending, Verified, None]
+    organization_link:
+      required:
+        - organization_name
+        - organization_link_kind
+      properties:
+        organization_name:
+          type: string
+        organization_link_kind:
+          type: string
+          enum: [REGISTERED, CUSTOM]
+        organization_user_id:
+          type: string
+    date_string:
+      type: string
+      format: date
+    validity_period:
+      type: object
+      required:
+        - start_date
+        - end_date
+      properties:
+        start_date:
+          $ref: './variables.yaml#/components/schemas/date_string'
+        end_date:
+          $ref: './variables.yaml#/components/schemas/date_string'
+    password:
+      type: string
+      minimum: 10
+      maximum: 50
+      pattern: '^(?=.{10,50}$)(?=.*[0-9])(?=.*[a-zA-Z])(([a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};:"\\|,.<>\/?])\2?(?!\2))+$'

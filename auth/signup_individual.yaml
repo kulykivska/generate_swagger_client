@@ -1,0 +1,20 @@
+post:
+  summary: Registers new individual user in the system
+  operationId: rest.auth.signup_individual.post
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../auth/components/signup_individual_request.yaml'
+  responses:
+    200:
+      description: Successful registration
+      content:
+        application/json:
+          schema:
+            $ref: '../inter_context/components/user.yaml#/user_id'
+    400:
+      $ref: '../components/components.yaml#/components/responses/ClientError'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

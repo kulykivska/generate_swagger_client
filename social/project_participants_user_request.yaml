@@ -1,0 +1,15 @@
+delete:
+  summary: Reject/remove a users request to join a project from requests list
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/project_id'
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.social.project_requests.delete
+  responses:
+    200:
+      description: Successfully remove a users request to join a project from requests list
+      content:
+        application/json:
+          schema:
+            $ref: '../common/empty_response.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

@@ -1,0 +1,20 @@
+delete:
+  summary: Delete the comment
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/comment_id'
+  operationId: rest.comments.delete
+  security:
+    - session: []
+  responses:
+    204:
+      description: The comment was deleted successfully.
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      description: The comment was not found.
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            type: object

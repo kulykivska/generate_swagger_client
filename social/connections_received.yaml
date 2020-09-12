@@ -1,0 +1,18 @@
+get:
+  summary: Fetching all received requests for current user
+  operationId: rest.social.profile_connections.requests.index_received
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+    - $ref: '../components/components.yaml#/components/parameters/sorting_param'
+  security:
+    - session: []
+  responses:
+    200:
+      description: Received requests list was received
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/connections.yaml#/connections'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

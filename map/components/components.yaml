@@ -1,0 +1,241 @@
+statistics:
+  type: object
+  required:
+    - statistic_type
+    - statistic_counters
+  properties:
+    statistic_type:
+      $ref: '#/statistic_type'
+    statistic_counters:
+      $ref: '#/specific_statistic'
+
+specific_statistic:
+  anyOf:
+    - $ref: '#/communities_counters'
+    - $ref: '#/projects_counters'
+    - $ref: '#/individuals_counters'
+    - $ref: '#/organizations_counters'
+
+communities_counters:
+  type: object
+  required:
+    - communities_count
+    - community_leads_count
+    - community_participants_count
+  properties:
+    communities_count:
+      type: number
+      example: 123
+    community_leads_count:
+      type: number
+      example: 123
+    community_participants_count:
+      type: number
+      example: 123
+
+projects_counters:
+  type: object
+  required:
+    - projects_count
+    - project_leads_count
+    - project_participants_count
+  properties:
+    projects_count:
+      type: number
+      example: 123
+    project_leads_count:
+      type: number
+      example: 123
+    project_participants_count:
+      type: number
+      example: 123
+
+individuals_counters:
+  type: object
+  required:
+    - total_individuals_count
+    - patients_count
+    - doctors_count
+    - medstaff_count
+    - researchers_count
+  properties:
+    total_individuals_count:
+      type: number
+      example: 123
+    patients_count:
+      type: number
+      example: 123
+    doctors_count:
+      type: number
+      example: 123
+    medstaff_count:
+      type: number
+      example: 123
+    researchers_count:
+      type: number
+      example: 123
+
+organizations_counters:
+  type: object
+  required:
+    - total_organizations_count
+    - foundation_organizations_count
+    - institute_organizations_count
+    - hospital_organizations_count
+    - research_organizations_count
+  properties:
+    total_organizations_count:
+      type: number
+      example: 123
+    foundation_organizations_count:
+      type: number
+      example: 123
+    institute_organizations_count:
+      type: number
+      example: 123
+    hospital_organizations_count:
+      type: number
+      example: 123
+    research_organizations_count:
+      type: number
+      example: 123
+
+statistic_type:
+  type: string
+  enum: [Communities, Projects, Individuals, Organizations]
+
+geometry:
+  type: object
+  required:
+    - type
+    - coordinates
+  properties:
+    type:
+      type: string
+      example: Point
+    coordinates:
+      type: array
+      items:
+        type: number
+      minItems: 2
+      maxItems: 2
+
+label:
+  type: object
+  required:
+    - title
+    - value
+  properties:
+    title:
+      type: string
+      example: Deaths
+    value:
+      oneOf:
+        - type: string
+        - type: integer
+      example: 12345
+
+properties:
+  type: object
+  required:
+    - labels
+    - radius
+  properties:
+    labels:
+      type: array
+      items:
+        $ref: '#/label'
+    radius:
+      type: number
+      example: 17000
+
+feature:
+  type: object
+  required:
+    - type
+    - properties
+    - geometry
+  properties:
+    type:
+      type: string
+      example: Feature
+    properties:
+      $ref: '#/properties'
+    geometry:
+      $ref: '#/geometry'
+
+feature_collection:
+  type: object
+  required:
+    - type
+    - features
+  properties:
+    type:
+      type: string
+      example: FeatureCollection
+    features:
+      type: array
+      items:
+        $ref: '#/feature'
+
+covid_map_data:
+  type: object
+  required:
+    - updated_at
+    - data
+    - total_stats
+  properties:
+    updated_at:
+      type: string
+      format: date-time
+      example: '2020-02-25T08:41:10+00:00'
+    data:
+      type: string
+      description: serialized GeoJSON FeatureCollection
+    total_stats:
+      type: object
+      required:
+        - cases
+        - deaths
+        - vaccinations
+      properties:
+        cases:
+          type: integer
+          example: 421874292
+        deaths:
+          type: integer
+          example: 5891015
+        vaccinations:
+          type: integer
+          example: 10500123456
+
+covid_vaccinations_map_data:
+  type: object
+  required:
+    - updated_at
+    - data
+    - total_stats
+  properties:
+    updated_at:
+      type: string
+      format: date-time
+      example: '2020-02-25T08:41:10+00:00'
+    data:
+      type: string
+      description: serialized GeoJSON FeatureCollection
+    total_stats:
+      type: object
+      required:
+        - vaccinations_administered
+        - partially_vaccinated
+        - fully_vaccinated
+      properties:
+        vaccinations_administered:
+          type: integer
+          example: 10650850331
+        partially_vaccinated:
+          type: integer
+          example: 4790958691
+        fully_vaccinated:
+          type: integer
+          example: 4284805147

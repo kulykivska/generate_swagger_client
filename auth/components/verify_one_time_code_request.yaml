@@ -1,0 +1,11 @@
+type: object
+required:
+  - code
+properties:
+  code:
+    type: string
+    pattern: '^\d{6}$'
+    example: "123456"
+  phone_number:
+    type: string
+    example: "+12015123454"

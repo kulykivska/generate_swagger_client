@@ -1,0 +1,17 @@
+get:
+  operationId: rest.file_storage.size.get
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully fetch a file storage size
+      content:
+        application/json:
+          schema:
+            $ref: '../files/components/components.yaml#/file_size_response'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

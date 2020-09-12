@@ -1,0 +1,41 @@
+delete:
+  summary: Leave the community, remove a user from members
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/community_id'
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.social.community_members.delete
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../common/empty_response.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+put:
+  summary: Community lead accepts join request to become the community member, or invited profile accepts lead's invitation
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/community_id'
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.social.community_members.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/community.yaml#/community_invite_or_decline_request'
+  responses:
+    200:
+      description: Successfully status of the community updated
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

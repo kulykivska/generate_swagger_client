@@ -1,0 +1,27 @@
+connection:
+  type: object
+  required:
+    - invitation_date
+    - user
+  properties:
+    invitation_date:
+      type: string
+      format: date
+    acceptance_date:
+      type: string
+      format: date
+    user:
+      $ref: 'profile.yaml#/user_basic'
+
+connections:
+  type: object
+  required:
+    - items
+    - total_count
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/connection'
+    total_count:
+      type: number

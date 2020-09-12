@@ -1,0 +1,14 @@
+get:
+  summary: Profile connections counters by status
+  operationId: rest.social.profile_connections.counters
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully fetch profile connections counters
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/social_group_common.yaml#/request_counters'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

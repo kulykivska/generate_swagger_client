@@ -1,0 +1,16 @@
+post:
+  summary: Requests to prolong duration of the session (user activity on the client side)
+  operationId: rest.auth.prolong.post
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successful prolongation
+      content:
+        application/json:
+          schema:
+            $ref: '../common/empty_response.yaml'
+    400:
+      $ref: '../components/components.yaml#/components/responses/ClientError'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

@@ -1,0 +1,23 @@
+get:
+  summary: Fetches all users
+  parameters:
+    - name: user_ids
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      description: User IDs
+  operationId: rest.user.index
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successful users fetch
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/profile.yaml#/list_of_basic_users'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

@@ -1,0 +1,27 @@
+get:
+  summary: Fetches data of requested search aggregation items
+  operationId: rest.search.aggregations.get
+  security:
+    - session: []
+    - {}
+  parameters:
+    - in: query
+      name: params
+      description: Stringifyied json data of search aggregation request
+      schema:
+        type: string
+  responses:
+    200:
+      description: Successful fetch
+      content:
+        application/json:
+          schema:
+            $ref: '../search/components/components.yaml#/components/schemas/search_aggregation_response'
+    400:
+      $ref: '../components/components.yaml#/components/responses/ClientError'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    default:
+      $ref: '../common/unexpected_error.yaml'
+
+

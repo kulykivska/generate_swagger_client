@@ -1,0 +1,53 @@
+user_involvement_type:
+  type: string
+  enum: [Member, Lead]
+
+pending_user_involvement:
+  type: object
+  required:
+    - user
+    - creation_date
+  properties:
+    user:
+      $ref: './profile.yaml#/user_basic'
+    invite_type:
+      $ref: '#/user_involvement_type'
+    creation_date:
+      type: string
+      format: date-time
+      example: '2020-02-25T08:41:10+00:00'
+
+pending_user_involvements:
+  type: object
+  required:
+    - items
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/pending_user_involvement'
+
+user_relation_to_group:
+  type: string
+  enum: [Unrelated, Leader, Member]
+
+request_counters_basic:
+  type: object
+  required:
+    - requests_sent
+    - requests_received
+  properties:
+    requests_sent:
+      type: number
+    requests_received:
+      type: number
+
+request_counters:
+  allOf:
+    - $ref: '#/request_counters_basic'
+  type: object
+  required:
+    - verified_count
+  properties:
+    verified_count:
+      type: number

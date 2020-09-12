@@ -1,0 +1,140 @@
+components:
+  schemas:
+    search_attributes_response:
+      type: object
+      required:
+        - search_attributes
+        - aggregate_attributes
+        - sort_attributes
+      properties:
+        search_attributes:
+          type: array
+          items:
+            $ref: '../components/variables.yaml#/components/schemas/search_attribute'
+        aggregate_attributes:
+          type: array
+          items:
+            $ref: '../components/variables.yaml#/components/schemas/aggregate_attribute'
+        sort_attributes:
+          type: array
+          items:
+            $ref: '../components/variables.yaml#/components/schemas/sort_attribute'
+
+    search_request_object:
+      type: object
+      required:
+        - search_attributes
+        - sort_attributes
+        - limit
+        - offset
+      properties:
+        search_attributes:
+          type: array
+          items:
+            $ref: '../components/variables.yaml#/components/schemas/search_request'
+        sort_attributes:
+          type: array
+          items:
+            $ref: '../components/variables.yaml#/components/schemas/sort_request'
+        limit:
+          type: number
+        offset:
+          type: number
+          example: 100
+        view:
+          type: string
+          example: basic
+
+    search_response:
+      type: object
+      required:
+        - total_matches_count
+        - search_results
+      properties:
+        total_matches_count:
+          type: number
+          example: 125
+        search_results:
+          type: array
+          items:
+            $ref: '#/components/schemas/search_result'
+
+    search_result:
+      type: object
+      required:
+        - entity_kind
+        - view_type
+        - item
+      properties:
+        entity_kind:
+          type: string
+          example: Project
+        view_type:
+          type: string
+          example: basic
+        item:
+          type: object
+
+    search_nested_aggregation:
+      type: object
+      required:
+        - nested_bucket_name
+        - nested_buckets
+      properties:
+        nested_bucket_name:
+          type: string
+          example: AggregationItemType
+          description: Name of the aggregation bucket corresponding to nested_aggregate_attributes in request
+        nested_buckets:
+          type: array
+          items:
+            $ref: '#/components/schemas/search_aggregation_bucket'
+          description: Bodies of nested aggregation buckets
+
+    search_aggregation_bucket:
+      type: object
+      required:
+        - aggregated_items_count
+        - aggregation_key
+      properties:
+        aggregated_items_count:
+          type: number
+          example: 5
+          description: Number of search documents that are grouped within this bucket
+        aggregation_key:
+          type: object
+          example: { 'lat': -31.952162238024968, 'lon': 149.0625 }
+          description: Attribute-specific object structure representing it's key, used to group documents into bucket
+        nested_aggregations:
+          type: array
+          items:
+            $ref: '#/components/schemas/search_nested_aggregation'
+          description: Bodies of nested aggregation buckets
+
+    search_result_aggregation:
+      type: object
+      required:
+        - aggregated_entities
+        - bucket_name
+        - buckets
+      properties:
+        aggregated_entities:
+          type: array
+          items:
+            type: string
+            description: Name of a search entity enabled during aggregation request (from "Search Items" operator)
+            example: Projects
+        bucket_name:
+          type: string
+          example: AggregationGeotileGrid
+          description: Name of the aggregation bucket corresponding to aggregate operator in request
+        buckets:
+          type: array
+          items:
+            $ref: '#/components/schemas/search_aggregation_bucket'
+          description: Bodies of aggregation buckets
+
+    search_aggregation_response:
+      type: array
+      items:
+        $ref: '#/components/schemas/search_result_aggregation'

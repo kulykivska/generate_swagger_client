@@ -1,0 +1,14 @@
+post:
+  summary: Logs the current user into messaging external service and returns access token for client SDK
+  operationId: rest.social.profile_messaging.access.post
+  security:
+    - session: []
+  responses:
+    200:
+      description: Succesfull fetching of profile's individual access token to messaging system
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/messaging_channel.yaml#/messaging_access_token'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

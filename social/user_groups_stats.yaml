@@ -1,0 +1,14 @@
+get:
+  summary: View stats on current user's social groups
+  operationId: rest.social.user_groups_stats.get
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/user_social_groups.yaml#/user_social_groups_stats'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

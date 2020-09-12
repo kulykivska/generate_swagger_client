@@ -1,0 +1,16 @@
+get:
+  summary: Fetches patient's information about current guardians for the logged user
+  operationId: rest.medical.role_patient_guardians.get
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successful fetch
+      content:
+        application/json:
+          schema:
+            $ref: '../medical/components/patient_guardians.yaml'
+    400:
+      $ref: '../components/components.yaml#/components/responses/ClientError'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

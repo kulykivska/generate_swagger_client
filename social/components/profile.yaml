@@ -1,0 +1,91 @@
+list_of_basic_users:
+  type: object
+  required:
+    - items
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/user_basic'
+
+basic_users_as_list:
+  type: array
+  items:
+    $ref: '#/user_basic'
+
+user_basic:
+  type: object
+  required:
+    - user_id
+    - displayed_name
+    - is_admin
+    - deleted
+  properties:
+    user_id:
+      type: string
+    displayed_name:
+      type: string
+      description: individual alias or organization name
+    is_admin:
+      type: boolean
+    deleted:
+      type: boolean
+    image_url:
+      type: string
+    chat:
+      type: string
+      example: CH704e34711c324838a584c0f6243e2701
+      description: channel_external_id if already exists
+
+user_id_request:
+  type: object
+  required:
+    - user_id
+  properties:
+    user_id:
+      type: string
+
+user_extended:
+  allOf:
+    - $ref: '#/user_basic'
+    - type: object
+      required:
+        - user_roles
+        - reaction
+      properties:
+        user_roles:
+          type: array
+          items:
+            $ref: '../../common/enums.yaml#/user_role'
+        reaction:
+          $ref: '../../components/components.yaml#/components/schemas/reaction'
+        counsel_role:
+          $ref: '../../common/enums.yaml#/counsel_role'
+
+counsel_users_by_type:
+  type: object
+  required:
+    - as_admin
+    - as_doctor
+    - as_patient
+  properties:
+    as_admin:
+      $ref: '#/list_of_extended_users'
+    as_doctor:
+      $ref: '#/list_of_extended_users'
+    as_patient:
+      $ref: '#/list_of_extended_users'
+
+list_of_extended_users:
+  type: array
+  items:
+    $ref: '#/user_extended'
+
+connection_request_status:
+  type: object
+  required:
+    - connection_status
+  properties:
+    connection_status:
+      type: string
+      enum: [Verified, Rejected]

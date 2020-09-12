@@ -1,0 +1,14 @@
+type: object
+properties:
+  individual_attributes:
+    type: array
+    items:
+      $ref: '../../attribute/components/attribute_value.yaml'
+  patient_attributes:
+    type: array
+    items:
+      $ref: '../../attribute/components/attribute_value.yaml'
+  doctor_attributes:
+    type: array
+    items:
+      $ref: '../../attribute/components/attribute_value.yaml'

@@ -1,0 +1,140 @@
+social_context_entity_type:
+  type: string
+  enum: [Community, Project]
+
+social_context:
+  type: object
+  required:
+    - entity_type 
+    - entity_id
+    - entity_title
+    - actor_role
+  properties:
+    entity_type:
+      $ref: '#/social_context_entity_type'
+    entity_id:
+      type: string
+      format: uuid
+    entity_title:
+      type: string 
+    actor_role:
+      $ref: './social_group_common.yaml#/user_relation_to_group'
+
+post_base:
+  type: object
+  required:
+    - entity_id
+    - permissions
+    - title
+    - date
+    - social_context
+  properties:
+    entity_id:
+      type: string
+      format: uuid
+    permissions:
+      $ref: '#/post_permissions'
+    title:
+      type: string
+    date:
+      type: string
+      format: date
+    social_context:
+      $ref: '#/social_context'
+    image_url:
+      type: string
+      format: uri
+
+post_basic:
+  allOf:
+    - $ref: '#/post_base'
+    - type: object
+      required:
+        - creator_id
+      properties:
+        creator_id:
+          type: string
+          format: uuid
+
+post:
+  allOf:
+    - $ref: '#/post_base'
+    - type: object
+      required:
+        - creator
+        - text
+      properties:
+        creator:
+          $ref: './profile.yaml#/user_basic'
+        text:
+          type: string
+
+posts:
+  type: object
+  required:
+    - items
+    - total_count
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/post_basic'
+    total_count:
+      type: number
+
+create_post_request:
+  type: object
+  required:
+    - title
+    - text
+  properties:
+    title:
+      type: string
+    text:
+      type: string
+    community_id:
+      type: string
+      format: uuid
+    project_id:
+      type: string
+      format: uuid
+    image_url:
+      type: string
+      format: uri
+
+update_post_request:
+  type: object
+  required:
+    - title
+    - text
+  properties:
+    title:
+      type: string
+    text:
+      type: string
+    community_id:
+      type: string
+      format: uuid
+    project_id:
+      type: string
+      format: uuid
+
+post_permissions:
+  type: object
+  required:
+    - view
+    - remove
+    - add_comment
+    - update
+    - view_comments
+  properties:
+    view:
+      type: boolean
+    remove:
+      type: boolean
+    add_comment:
+      type: boolean
+    update:
+      type: boolean
+    view_comments:
+      type: boolean

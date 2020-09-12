@@ -1,0 +1,6 @@
+type: object
+properties:
+  guardians:
+    type: array
+    items:
+      $ref: './patient_guardianship.yaml'

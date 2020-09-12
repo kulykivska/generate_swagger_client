@@ -1,0 +1,23 @@
+get:
+  summary: View file activity log
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/file_descriptor_id'
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+    - $ref: '../components/components.yaml#/components/parameters/sorting_param'
+  operationId: rest.file_storage.file_activity_log.index
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../files/components/components.yaml#/file_activity_log'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

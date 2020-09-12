@@ -1,0 +1,18 @@
+get:
+  summary: View posts list
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/community_id'
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+  operationId: rest.social.community_posts.index
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/post.yaml#/posts'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

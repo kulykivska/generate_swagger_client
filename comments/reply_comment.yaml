@@ -1,0 +1,55 @@
+post:
+  summary: Add comment reply to comment
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/comment_id'
+  operationId: rest.comment.reply.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/comment.yaml#/reply_comment_request'
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/comment.yaml#/reply_comment'
+    400:
+      description: Bad Request.
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      description: The specified resource was not found.
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            type: object
+get:
+  summary: View the rely list by comments ID
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/comment_id'
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+  operationId: rest.comment.reply.index_paginable
+  security:
+    - session: []
+    - {}
+  responses:
+    200:
+      description: Successfully fetch a list of the comment reply
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/comment.yaml#/list_of_comment_replies'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

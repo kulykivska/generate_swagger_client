@@ -1,0 +1,295 @@
+project:
+  type: object
+  required:
+    - entity_id
+    - permissions
+    - title
+    - description
+    - type
+    - diseases
+    - specialities
+    - location
+    - creator
+    - validity_period
+    - verification_status
+    - linked_organizations
+    - actor_role
+  properties:
+    entity_id:
+      type: string
+    permissions:
+      $ref: '#/project_permissions'
+    title:
+      type: string
+    description:
+      type: string
+    website:
+      type: string
+    type:
+      type: string
+    diseases:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/disease'
+    funding_source:
+      type: string
+    specialities:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+    linked_organizations:
+      type: array
+      items:
+        $ref: '../../components/variables.yaml#/components/schemas/organization_link'
+    location:
+      $ref: '../../components/variables.yaml#/components/schemas/location'
+    community:
+      type: object
+      required:
+        - entity_id
+        - title
+      properties:
+        entity_id:
+          type: string
+        title:
+          type: string
+    creator:
+      $ref: './profile.yaml#/user_basic'
+    validity_period:
+      $ref: '../../components/variables.yaml#/components/schemas/validity_period'
+    verification_status:
+      $ref: '../../admin/verification_statuses.yaml#/verification_status'
+    verification_message:
+      type: string
+    linked_projects:
+      type: array
+      items:
+        $ref: '#/project'
+    linked_projects_members:
+      $ref: './profile.yaml#/basic_users_as_list'
+    actor_role:
+      $ref: './social_group_common.yaml#/user_relation_to_group'
+
+
+projects:
+  type: object
+  required:
+    - items
+    - total_count
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/project'
+    total_count:
+      type: number
+
+create_project_request:
+  type: object
+  required:
+    - title
+    - description
+    - validity_period
+    - type
+    - diseases
+    - specialities
+    - location
+    - viewport
+    - linked_organizations
+  properties:
+    title:
+      type: string
+    description:
+      type: string
+    validity_period:
+      $ref: '../../components/variables.yaml#/components/schemas/validity_period'
+    website:
+      type: string
+    type:
+      type: string
+    diseases:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/disease'
+    funding_source:
+      type: string
+    specialities:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+    location:
+      $ref: '../../components/variables.yaml#/components/schemas/location'
+    viewport:
+      $ref: '../../components/variables.yaml#/components/schemas/viewport'
+    community_id:
+      type: string
+    linked_projects:
+      type: array
+      items:
+        type: string
+    linked_organizations:
+      type: array
+      items:
+        $ref: '../../components/variables.yaml#/components/schemas/organization_link'
+
+update_project_request:
+  type: object
+  required:
+    - title
+    - description
+    - validity_period
+    - type
+    - diseases
+    - specialities
+    - location
+    - linked_organizations
+  properties:
+    title:
+      type: string
+    description:
+      type: string
+    validity_period:
+      $ref: '../../components/variables.yaml#/components/schemas/validity_period'
+    website:
+      type: string
+    type:
+      type: string
+    diseases:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/disease'
+    funding_source:
+      type: string
+    specialities:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+    location:
+      $ref: '../../components/variables.yaml#/components/schemas/location'
+    viewport:
+      $ref: '../../components/variables.yaml#/components/schemas/viewport'
+    community_id:
+      type: string
+    linked_projects:
+      type: array
+      items:
+        type: string
+    linked_organizations:
+      type: array
+      items:
+        $ref: '../../components/variables.yaml#/components/schemas/organization_link'
+
+project_permissions:
+  type: object
+  required:
+    - view
+    - update
+    - add_leader
+    - remove_leader
+    - remove
+    - extend
+    - request_to_reactivate
+    - accept_reactivation_request
+    - deny_reactivation_request
+    - invite_users
+    - view_invitations
+    - leave
+    - request_to_join
+    - view_join_requests
+    - accept_join_request
+    - deny_join_request
+    - request_to_link
+    - accept_link_request
+    - deny_link_request
+    - unlink
+    - view_members
+    - remove_member
+    - view_posts
+    - add_post
+  properties:
+    view:
+      type: boolean
+    update:
+      type: boolean
+    add_leader:
+      type: boolean
+    remove_leader:
+      type: boolean
+    remove:
+      type: boolean
+    extend:
+      type: boolean
+    request_to_reactivate:
+      type: boolean
+    accept_reactivation_request:
+      type: boolean
+    deny_reactivation_request:
+      type: boolean
+    invite_users:
+      type: boolean
+    view_invitations:
+      type: boolean
+    leave:
+      type: boolean
+    request_to_join:
+      type: boolean
+    view_join_requests:
+      type: boolean
+    accept_join_request:
+      type: boolean
+    deny_join_request:
+      type: boolean
+    request_to_link:
+      type: boolean
+    accept_link_request:
+      type: boolean
+    deny_link_request:
+      type: boolean
+    unlink:
+      type: boolean
+    view_members:
+      type: boolean
+    remove_member:
+      type: boolean
+    view_posts:
+      type: boolean
+    add_post:
+      type: boolean
+
+project_invite_or_decline_request:
+  type: object
+  required:
+    - invitation_status
+  properties:
+    invitation_status:
+      type: string
+      enum: [Approved, Rejected]
+
+pending_user_involvement_in_project:
+  type: object
+  required:
+    - project
+    - creation_date
+    - invite_type
+  properties:
+    project:
+      $ref: '#/project'
+    creation_date:
+      type: string
+      format: date-time
+      example: '2020-02-25T08:41:10+00:00'
+    invite_type:
+      $ref: './social_group_common.yaml#/user_involvement_type'
+
+paginatable_pending_user_involvements_in_projects:
+  type: object
+  required:
+    - items
+    - total_count
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/pending_user_involvement_in_project'
+    total_count:
+      type: number

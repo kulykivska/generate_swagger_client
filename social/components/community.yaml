@@ -1,0 +1,248 @@
+community:
+  type: object
+  required:
+    - entity_id
+    - permissions
+    - title
+    - description
+    - type
+    - specialities
+    - location
+    - status
+    - creator
+    - actor_role
+  properties:
+    entity_id:
+      type: string
+    permissions:
+      $ref: '#/community_permissions'
+    title:
+      type: string
+    description:
+      type: string
+    website:
+      type: string
+    type:
+      type: string
+    specialities:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+    location:
+      $ref: '../../components/variables.yaml#/components/schemas/location'
+    status:
+      $ref: '#/community_status'
+    creator:
+      $ref: './profile.yaml#/user_basic'
+    linked_communities:
+      type: array
+      items:
+        $ref: '#/community'
+    linked_communities_members:
+      $ref: './profile.yaml#/basic_users_as_list'
+    actor_role:
+      $ref: './social_group_common.yaml#/user_relation_to_group'
+
+communities:
+  type: object
+  required:
+    - items
+    - total_count
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/community'
+    total_count:
+      type: number
+
+create_community_request:
+  type: object
+  required:
+    - title
+    - description
+    - type
+    - specialities
+    - location
+    - viewport
+    - status
+  properties:
+    title:
+      type: string
+    description:
+      type: string
+    website:
+      type: string
+    type:
+      type: string
+    specialities:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+    location:
+      $ref: '../../components/variables.yaml#/components/schemas/location'
+    viewport:
+      $ref: '../../components/variables.yaml#/components/schemas/viewport'
+    status:
+      $ref: '#/community_status'
+    linked_communities:
+      type: array
+      items:
+        type: string
+
+update_community_request:
+  type: object
+  required:
+    - title
+    - description
+    - type
+    - specialities
+    - location
+    - status
+  properties:
+    title:
+      type: string
+    description:
+      type: string
+    website:
+      type: string
+    type:
+      type: string
+    specialities:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+    location:
+      $ref: '../../components/variables.yaml#/components/schemas/location'
+    viewport:
+      $ref: '../../components/variables.yaml#/components/schemas/viewport'
+    status:
+      $ref: '#/community_status'
+    linked_communities:
+      type: array
+      items:
+        type: string
+
+link_community_request:
+  type: object
+  required:
+    - community_id
+  properties:
+    community_id:
+      type: string
+
+community_permissions:
+  type: object
+  required:
+    - view
+    - update
+    - add_leader
+    - remove_leader
+    - remove
+    - invite_users
+    - view_invitations
+    - leave
+    - request_to_join
+    - accept_join_request
+    - deny_join_request
+    - view_join_requests
+    - request_to_link
+    - accept_link_request
+    - deny_link_request
+    - unlink
+    - view_members
+    - remove_member
+    - view_projects
+    - create_project
+    - remove_project
+    - view_posts
+    - add_post
+  properties:
+    view:
+      type: boolean
+    update:
+      type: boolean
+    add_leader:
+      type: boolean
+    remove_leader:
+      type: boolean
+    remove:
+      type: boolean
+    invite_users:
+      type: boolean
+    view_invitations:
+      type: boolean
+    leave:
+      type: boolean
+    request_to_join:
+      type: boolean
+    view_join_requests:
+      type: boolean
+    accept_join_request:
+      type: boolean
+    deny_join_request:
+      type: boolean
+    request_to_link:
+      type: boolean
+    accept_link_request:
+      type: boolean
+    deny_link_request:
+      type: boolean
+    unlink:
+      type: boolean
+    view_members:
+      type: boolean
+    remove_member:
+      type: boolean
+    view_projects:
+      type: boolean
+    create_project:
+      type: boolean
+    remove_project:
+      type: boolean
+    view_posts:
+      type: boolean
+    add_post:
+      type: boolean
+
+community_status:
+  type: string
+  enum: [open, closed]
+
+pending_user_involvement_in_community:
+  type: object
+  required:
+    - community
+    - creation_date
+  properties:
+    community:
+      $ref: '#/community'
+    invite_type:
+      $ref: './social_group_common.yaml#/user_involvement_type'
+    creation_date:
+      type: string
+      format: date-time
+      example: '2020-02-25T08:41:10+00:00'
+
+paginatable_pending_user_involvements_in_communities:
+  type: object
+  required:
+    - items
+    - total_count
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/pending_user_involvement_in_community'
+    total_count:
+      type: number
+
+community_invite_or_decline_request:
+  type: object
+  required:
+    - invitation_status
+  properties:
+    invitation_status:
+      type: string
+      enum: [Approved, Rejected]
+      default: 'Approved'

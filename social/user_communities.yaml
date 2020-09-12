@@ -1,0 +1,18 @@
+get:
+  summary: View communities of specific user
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+  operationId: rest.social.user_communities.index
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/community.yaml#/communities'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

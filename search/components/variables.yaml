@@ -1,0 +1,106 @@
+components:
+  #-------------------------------
+  # Reusable schemas (data models) for Search
+  #-------------------------------
+  schemas:
+    search_attribute:
+      type: object
+      required:
+        - name
+        - type
+        - operators
+      properties:
+        name:
+          type: string
+          example: Search query
+          description: Visible name & identifier.
+        type:
+          type: string
+          enum: [string, geo, number]
+          example: string
+        operators:
+          type: array
+          description: Visible names of operators & identifiers.
+          items:
+            $ref: '../../components/variables.yaml#/components/schemas/operator'
+        suggested_query_url:
+          type: object
+          description: По этому URL можно узнать suggested_values по одной букве. Не может быть одновременно с suggested_values.
+          example: http://example.com/suggest/csi?q=examp
+          required:
+            - href
+            - method
+          properties:
+            href:
+              type: string
+              example: http://example.com/suggest/csi?q=
+            method:
+              type: string
+              example: GET
+            
+        suggested_values:
+          type: array
+          description: Список suggested elements. Должны интерпретироваться в зависимости от type. Не может быть одновременно с suggested_query_url.
+          items:
+            $ref: '../../components/variables.yaml#/components/schemas/one_of_any'
+        default_selection:
+          $ref: '../../components/variables.yaml#/components/schemas/one_of_any'
+
+    aggregate_attribute:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: Search query
+          description: Visible name & identifier.
+        default_selection:
+          oneOf:
+            - type: string
+            - type: number
+            - type: object
+
+    sort_attribute:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Например, created, reviews, likes, rating.
+          example: created
+
+
+    search_request:
+      type: object
+      required:
+        - name
+        - operator
+        - values
+      properties:
+        name:
+          type: string
+          example: "Type"
+        operator:
+          $ref: '../../search/components/variables.yaml#/components/schemas/operator'
+        values:
+          oneOf:
+            - type: string
+            - type: number
+            - type: array
+              items:
+                type: string
+                example: [Projects, Users]
+
+            
+    sort_request:
+      type: object
+      required:
+        - name
+        - ascending
+      properties:
+        attribute_name:
+          type: string
+          example: Reviews
+        ascending:
+          type: boolean
+          example: true

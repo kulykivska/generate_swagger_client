@@ -1,0 +1,20 @@
+get:
+  summary: View the project pending invitation and requests counters
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/project_id'
+  operationId: rest.social.project_members.involvement_counters
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/social_group_common.yaml#/request_counters_basic'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

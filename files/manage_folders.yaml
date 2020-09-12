@@ -1,0 +1,61 @@
+get:
+  summary: View the folders and files list
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/folder_descriptor_id'
+  operationId: rest.file_storage.folder.get
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully fetch a list of files and foldres
+      content:
+        application/json:
+          schema:
+            $ref: '../files/components/components.yaml#/folders_response'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'
+
+
+delete:
+  summary: Remove folder by folder descriptor id
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/folder_descriptor_id'
+  operationId: rest.file_storage.folder.delete
+  security:
+    - session: []
+  responses:
+    204:
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'
+
+put:
+  summary: Update folder by folder descriptor id
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/folder_descriptor_id'
+  operationId: rest.file_storage.folder.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../files/components/file.yaml#/update_file_storage_item_request'
+  responses:
+    204:
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

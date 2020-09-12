@@ -1,0 +1,55 @@
+get:
+  summary: View project
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/project_id'
+  operationId: rest.social.projects.get
+  security:
+    - session: []
+    - {}
+  responses:
+    200:
+      description: Successfully fetched a project
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/project.yaml#/project'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+put:
+  summary: Edit project
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/project_id'
+  operationId: rest.social.projects.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/project.yaml#/update_project_request'
+  responses:
+    200:
+      description: Successfully edited a project
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/project.yaml#/project'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+delete:
+  summary: Remove project
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/project_id'
+  operationId: rest.social.projects.delete
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully removed a project
+      content:
+        application/json:
+          schema:
+            $ref: '../common/empty_response.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

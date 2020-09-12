@@ -1,0 +1,14 @@
+type: object
+required:
+  - relationship_name
+  - ward_patient_id
+  - start_date
+properties:
+  relationship_name:
+    type: string
+  ward_patient_id:
+    type: string
+  start_date:
+    type: string
+  end_date:
+    type: string

@@ -1,0 +1,20 @@
+post:
+  summary: Creates a conversation
+  operationId: rest.social.conversations.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/conversation.yaml#/create_conversation_request'
+  responses:
+    201:
+      description: Successful conversations creation
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/conversation.yaml#/conversation'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

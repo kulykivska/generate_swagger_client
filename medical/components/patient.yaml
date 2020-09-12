@@ -1,0 +1,17 @@
+type: object
+required:
+  - patient_id
+  - attributes
+  - deceased_date
+  - deceased_cause
+properties:
+  patient_id:
+    type: string
+  attributes:
+    type: array
+    items:
+      $ref: '../../attribute/components/attribute_value.yaml'
+  deceased_date:
+    type: string
+  deceased_cause:
+    type: string

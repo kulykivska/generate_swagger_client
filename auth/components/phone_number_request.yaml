@@ -1,0 +1,5 @@
+type: object
+properties:
+  phone_number:
+    type: string
+    example: "+12015123453"

@@ -1,0 +1,9 @@
+verification_project_request:
+  type: object
+  required:
+    - verification_status
+  properties:
+    verification_status:
+      $ref: '../verification_statuses.yaml#/verification_status'
+    verification_message:
+      type: string

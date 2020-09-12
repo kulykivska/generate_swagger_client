@@ -1,0 +1,57 @@
+get:
+  summary: View community
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/community_id'
+  operationId: rest.social.communities.get
+  security:
+    - session: []
+    - {}
+  responses:
+    200:
+      description: Successfully fetched a community
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/community.yaml#/community'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+put:
+  summary: Edit community
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/community_id'
+  operationId: rest.social.communities.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/community.yaml#/update_community_request'
+  responses:
+    200:
+      description: Successfully edited a community
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/community.yaml#/community'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+delete:
+  summary: Remove community
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/community_id'
+  operationId: rest.social.communities.delete
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully removed a community
+      content:
+        application/json:
+          schema:
+            $ref: '../common/empty_response.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

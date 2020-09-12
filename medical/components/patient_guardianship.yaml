@@ -1,0 +1,12 @@
+type: object
+required:
+  - relationship_name
+  - guardian_name
+  - is_primary
+properties:
+  relationship_name:
+    type: string
+  guardian_name:
+    type: string
+  is_primary:
+    type: boolean

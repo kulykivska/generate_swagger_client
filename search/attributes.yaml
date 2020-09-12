@@ -1,0 +1,18 @@
+get:
+  summary: Fetches metadata of the attributes for search
+  operationId: rest.search.attributes.index.get
+  responses:
+    '200':
+      description: Successful fetch
+      content:
+        application/json:
+          schema:
+            $ref: '../search/components/components.yaml#/components/schemas/search_attributes_response'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            type: object

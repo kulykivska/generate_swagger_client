@@ -1,0 +1,231 @@
+folders_response:
+  type: array
+  items:
+    type: object
+    required:
+      - entity_kind
+      - entity
+      - security
+    properties:
+      entity_kind:
+        type: string
+        enum: [folder_descriptor, file_descriptor]
+      entity:
+        type: object
+        oneOf:
+          - $ref: '#/file_descriptor'
+          - $ref: '#/folder_descriptor'
+      security:
+        type: array
+        items:
+          $ref: '#/security_descriptor'
+
+file_descriptor:
+  type: object
+  required:
+    - entity_id
+    - name
+    - creator_account_id
+    - content_type
+    - size
+    - state
+    - created
+    - is_public
+    - modified
+  properties:
+    entity_id:
+      type: string
+    name:
+      type: string
+    creator_account_id:
+      type: string
+    content_type:
+      type: string
+    size:
+      type: number
+    state:
+      type: string
+      enum: [pending, valid, deleted, blocked]
+    public_url:
+      type: string
+    created:
+      $ref: '../../components/variables.yaml#/components/schemas/date_string'
+    is_public:
+      type: boolean
+    modified:
+      $ref: '../../components/variables.yaml#/components/schemas/date_string'
+    age_in_folder:
+      $ref: '../../components/variables.yaml#/components/schemas/date_time'
+
+folder_descriptor:
+  type: object
+  required:
+    - entity_id
+    - name
+    - creator_account_id
+    - created
+    - modified
+    - modified_by
+    - readonly
+  properties:
+    entity_id:
+      type: string
+    name:
+      type: string
+    creator_account_id:
+      type: string
+    created:
+      $ref: '../../components/variables.yaml#/components/schemas/date_string'
+    modified:
+      $ref: '../../components/variables.yaml#/components/schemas/date_string'
+    modified_by:
+      type: string
+    readonly:
+      type: boolean
+
+security_descriptor:
+  type: object
+  required:
+    - user_id
+    - permission
+  properties:
+    user_id:
+      type: string
+    permission:
+      type: string
+      enum: [owner, reader, writer]
+
+file_size_response:
+  type: object
+  required:
+    - total_size
+    - used_size
+    - loading_size
+    - shared_size
+  properties:
+    total_size:
+      type: integer
+      example: 43246546
+      description: Total size file storage for user in system, in bytes.
+    used_size:
+      type: integer
+      example: 43246546
+      description: Size that already in use, in bytes.
+    loading_size:
+      type: integer
+      example: 43246546
+      description: Size that still in loading, in bytes. FileDescriptor State is Pending - hasn't loaded yet s
+    shared_size:
+      type: integer
+      example: 43246546
+      description: Size of files that shared to me, in bytes.
+
+security_diff:
+  type: object
+  required:
+    - old_version
+    - new_version
+  properties:
+    old_version:
+      type: array
+      items:
+        $ref: '#/security_descriptor'
+    new_version:
+      type: array
+      items:
+        $ref: '#/security_descriptor'
+
+file_sharing_settings_payload:
+    type: object
+    required:
+      - actor_account_id
+      - security_diff
+    properties:
+      actor_account_id:
+        type: string
+      security_diff:
+        $ref: '#/security_diff'
+
+file_descriptor_base:
+  type: object
+  required:
+    - entity_id
+    - entity_name
+    - content_type
+    - size
+  properties:
+    entity_id:
+      type: string
+    entity_name:
+      type: string
+    content_type:
+      type: string
+    size:
+      type: number
+
+event_payload:
+  type: object
+  required:
+    - file_view
+    - event_body
+  properties:
+    file_view:
+      $ref: '#/file_descriptor_base'
+    event_body:
+      anyOf:
+        - type: object
+          required:
+            - actor_account_id
+          properties:
+            actor_account_id:
+              type: string
+        - $ref: '#/file_sharing_settings_payload'
+
+activity_log_event:
+  type: object
+  required:
+    - event_id
+    - event_datetime
+    - event_type
+    - event_payload
+  properties:
+    event_id:
+      type: string
+    event_datetime:
+      type: string
+      format: date-time
+    event_type:
+      type: string
+      enum:
+        - FilesUploadedEvent
+        - FileShared
+        - FileDownloaded
+        - FileRemoved
+    event_payload:
+      $ref: '#/event_payload'
+
+list_of_events:
+  type: array
+  items:
+    $ref: '#/activity_log_event'
+
+files_activity_log:
+  type: object
+  required:
+    - items
+    - total_count
+  properties:
+    items:
+      $ref: '#/list_of_events'
+    total_count:
+      type: number
+
+file_activity_log:
+  allOf:
+    - $ref: '#/files_activity_log'
+    - type: object
+      required:
+        - total_download_count
+      properties:
+        total_download_count:
+          type: number

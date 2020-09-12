@@ -1,0 +1,18 @@
+get:
+  summary: Fetch all user requests to join a specific community
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/community_id'
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+  operationId: rest.social.community_requests.index
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successful fetched all user requests to join a specific community
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/social_group_common.yaml#/pending_user_involvements'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

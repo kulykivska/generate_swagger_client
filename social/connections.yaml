@@ -1,0 +1,23 @@
+post:
+  summary: Add connection to current user by account id
+  operationId: rest.social.profile_connections.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - userId
+          properties:
+            userId:
+              type: string
+              description: Account ID
+
+  responses:
+    201:
+      description: Connection link has been created
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

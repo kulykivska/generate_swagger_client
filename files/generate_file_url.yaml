@@ -1,0 +1,20 @@
+post:
+  summary: Create S3 file link
+  operationId: rest.file_storage.generate_file_url.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../files/components/file.yaml#/generate_file_request'
+  responses:
+    201:
+      description: Successfully created
+      content:
+        application/json:
+          schema:
+            $ref: '../files/components/file.yaml#/generate_file_response'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

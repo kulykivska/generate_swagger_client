@@ -1,0 +1,42 @@
+get:
+  summary: View members list
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/community_id'
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+  operationId: rest.social.community_members.index
+  security:
+    - session: []
+    - {}
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/profile.yaml#/list_of_basic_users'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+post:
+  summary: Invite a user to the community, join the community, send request to join
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/community_id'
+  operationId: rest.social.community_members.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/profile.yaml#/user_id_request'
+  responses:
+    201:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../common/empty_response.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

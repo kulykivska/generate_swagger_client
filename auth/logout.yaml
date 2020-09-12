@@ -1,0 +1,16 @@
+post:
+  summary: Log out user from the currently open session
+  operationId: rest.auth.logout.post
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successful logout
+      content:
+        application/json:
+          schema:
+            $ref: '../common/empty_response.yaml'
+    400:
+      $ref: '../components/components.yaml#/components/responses/ClientError'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

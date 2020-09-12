@@ -1,0 +1,15 @@
+post:
+  summary: Verify one time code
+  operationId: rest.auth.verify_one_time_code.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "./components/verify_one_time_code_request.yaml"
+  responses:
+    200:
+      description: Successfully verified
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'

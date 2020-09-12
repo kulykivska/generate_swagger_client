@@ -1,0 +1,111 @@
+generate_file_request:
+  type: object
+  required:
+    - name
+    - content_type
+    - size
+    - is_public
+  properties:
+    name:
+      type: string
+    content_type:
+      type: string
+    size:
+      type: number
+    is_public:
+      type: boolean
+      default: false
+      description: Option to create read:public files from the start.
+    folder_descriptor_id:
+      type: string
+      description: Optional, a reference to a folder. If missing, stored in the root folder.
+  example:
+    name: MyFile.pdf
+    content_type: application/pdf
+
+generate_file_response:
+  type: object
+  required:
+    - url
+    - fields
+    - file_descriptor_id
+  properties:
+    file_descriptor_id:
+      type: string
+      description: Unique identifier of the file being uploaded.
+    url:
+      type: string
+      example: https://bucket_name.s3.amazonaws.com/
+    fields:
+      type: object
+    public_url:
+      type: string
+      description: It is optional. Present only for files with public=true attribute
+
+generate_download_file_url_response:
+  type: object
+  required:
+    - presigned_url
+  properties:
+    presigned_url:
+      type: string
+      example: https://bucket_name.s3.amazonaws.com/.....
+      description: Unique temporary url for download.
+
+
+create_folder_request:
+  type: object
+  required:
+    - name
+  properties:
+    name:
+      type: string
+    folder_descriptor_id:
+      type: string
+
+
+update_folder_request:
+  type: object
+  required:
+    - name
+    - folder_descriptor_id
+  properties:
+    name:
+      type: string
+    folder_descriptor_id:
+      type: string
+
+
+share_request:
+  type: object
+  required:
+    - security_permission
+  properties:
+    security_permission:
+      type: array
+      items:
+        type: object
+        required:
+          - user_id
+          - permission
+        properties:
+          user_id:
+            type: string
+          permission:
+            type: string
+            enum: [owner, writer, reader]
+
+
+update_file_storage_item_request:
+  type: object
+  description: request object for update FileDescriptor of FolderDescriptor
+  required:
+    - new_name
+  properties:
+    new_name:
+      type: string
+    destination_folder_descriptor_id:
+      type: string
+  example:
+    name: images
+    destination_folder_descriptor_id: ‘sdfsdfkjwkjhfdkhhasdfbkjsdf’

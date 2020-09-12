@@ -1,0 +1,20 @@
+type: object
+required:
+  - token
+  - user_id
+  - is_admin_session
+properties:
+  token:
+    type: string
+    description: Session Token
+  token_expiration_time:
+    type: string
+    format: date-time
+    description: Indicates time when JWT token becomes expired
+    example: '2020-02-25T08:41:10+00:00'
+  user_id:
+    type: string
+    description: User ID
+  is_admin_session:
+    type: boolean
+    description: Indicates administrator's session

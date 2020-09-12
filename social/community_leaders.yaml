@@ -1,0 +1,17 @@
+get:
+  summary: Fetch all community leaders
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/community_id'
+  operationId: rest.social.community_leaders.index
+  security:
+    - session: []
+    - {}
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/profile.yaml#/list_of_basic_users'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
