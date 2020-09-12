@@ -1,0 +1,18 @@
+get:
+  summary: View all sent requests to join communities
+  operationId: rest.social.communities_sent_requests.index
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully fetched all sent invitation requests to join communities
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/community.yaml#/paginatable_pending_user_involvements_in_communities'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

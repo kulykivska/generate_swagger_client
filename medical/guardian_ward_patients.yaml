@@ -1,0 +1,20 @@
+post:
+  summary: Creates guardianship
+  operationId: rest.medical.guardian.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../medical/components/guardianship.yaml'
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../medical/components/guardianship.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

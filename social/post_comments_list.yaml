@@ -1,0 +1,25 @@
+get:
+  summary: View comments list
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/post_id'
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+    - name: replyLimit
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+      description: The numbers of comment reply items to return
+  operationId: rest.social.post_comments.index_list
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/comment.yaml#/list_of_root_comments'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

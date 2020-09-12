@@ -1,0 +1,38 @@
+post:
+  summary: Create folder
+  operationId: rest.file_storage.folder.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../files/components/file.yaml#/create_folder_request'
+  responses:
+    201:
+      description: Successfully created
+      content:
+        application/json:
+          schema:
+            $ref: '../files/components/components.yaml#/folder_descriptor'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+get:
+  operationId: rest.file_storage.folder.get_root
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully fetch a list of files and foldres
+      content:
+        application/json:
+          schema:
+            $ref: '../files/components/components.yaml#/folders_response'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

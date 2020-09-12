@@ -1,0 +1,16 @@
+post:
+  summary: Generate file download url
+  operationId: rest.file_storage.generate_download_file_url.post
+  security:
+    - session: []
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/file_descriptor_id'
+  responses:
+    201:
+      description: Successfully created
+      content:
+        application/json:
+          schema:
+            $ref: '../files/components/file.yaml#/generate_download_file_url_response'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

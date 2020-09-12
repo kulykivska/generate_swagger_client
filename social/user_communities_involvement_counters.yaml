@@ -1,0 +1,14 @@
+get:
+  summary: Get counters for user communities social involvement
+  operationId: rest.social.communities_involvement_counters.get
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/social_group_common.yaml#/request_counters'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

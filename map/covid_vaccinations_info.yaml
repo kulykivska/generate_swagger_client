@@ -1,0 +1,23 @@
+get:
+  operationId: rest.map.covid_vaccinations.get
+  security:
+    - session: []
+    - {}
+  parameters:
+    - in: query
+      name: params
+      description: Stringified json data of search request
+      schema:
+        type: string
+      required: true
+  responses:
+    200:
+      description: Successfully fetched covid vaccinations info
+      content:
+        application/json:
+          schema:
+            $ref: './components/components.yaml#/covid_vaccinations_map_data'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

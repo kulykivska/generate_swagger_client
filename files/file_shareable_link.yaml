@@ -1,0 +1,37 @@
+put:
+  summary: Generate shareable link
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/file_descriptor_id'
+  operationId: rest.file_storage.file_shareable_link.put
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully fetch a File descriptor
+      content:
+        application/json:
+          schema:
+            $ref: '../files/components/components.yaml#/file_descriptor'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'
+
+delete:
+  summary: Remove file shareable link
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/file_descriptor_id'
+  operationId: rest.file_storage.file_shareable_link.delete
+  security:
+    - session: []
+  responses:
+    204:
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

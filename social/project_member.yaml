@@ -1,0 +1,40 @@
+delete:
+  summary: Leave the project, remove a user from members
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/project_id'
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.social.project_members.delete
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../common/empty_response.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+put:
+  summary: 'User accept or reject invitation to become the project member'
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/project_id'
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.social.project_members.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/project.yaml#/project_invite_or_decline_request'
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../common/empty_response.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

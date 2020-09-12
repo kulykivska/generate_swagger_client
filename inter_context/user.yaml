@@ -1,0 +1,54 @@
+get:
+  summary: Fetches the specified user's information from all contexts
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.user.get
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../inter_context/components/user.yaml#/full_user'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+put:
+  summary: Updates the specified user
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.user.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../inter_context/components/user.yaml#/full_user_update_request'
+  responses:
+    200:
+      description: Successful user update
+      content:
+        application/json:
+          schema:
+            $ref: '../inter_context/components/user.yaml#/full_user'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+delete:
+  summary: Deletes the specified user
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.user.delete
+  security:
+    - session: []
+  responses:
+    204:
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'

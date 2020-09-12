@@ -1,0 +1,20 @@
+post:
+  summary: Create a new post
+  operationId: rest.social.posts.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/post.yaml#/create_post_request'
+  responses:
+    201:
+      description: Successfully created a new post
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/post.yaml#/post'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

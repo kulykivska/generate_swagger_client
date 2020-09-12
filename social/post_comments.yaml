@@ -1,0 +1,22 @@
+post:
+  summary: Add a comment
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/post_id'
+  operationId: rest.social.post_comments.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/comment.yaml#/create_comment_request'
+  responses:
+    201:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/comment.yaml#/root_comment'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

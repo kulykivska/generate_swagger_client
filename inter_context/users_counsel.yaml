@@ -1,0 +1,22 @@
+get:
+  summary: Fetches all counsel users by type
+  parameters:
+    - name: counsel_role
+      in: query
+      required: false
+      schema:
+        $ref: '../common/enums.yaml#/counsel_role'
+      description: Fetches all counsel users
+  operationId: rest.user.get_counsel
+  security:
+    - session: []
+    - {}
+  responses:
+    200:
+      description: Successful counsel users fetch
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/profile.yaml#/counsel_users_by_type'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

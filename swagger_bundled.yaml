@@ -1,0 +1,5581 @@
+openapi: 3.0.1
+info:
+  title: project REST API
+  description: Specification of REST API for Project
+  version: 0.1.0
+servers:
+  - url: 'https://localhost:8080'
+paths:
+  /users:
+    get:
+      summary: Fetches all users
+      parameters:
+        - name: user_ids
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          description: User IDs
+      operationId: rest.user.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successful users fetch
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema/items'
+        '403':
+          description: Security error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/paths/~1auth~1login/post/responses/400/content/application~1json/schema'
+                  - type: object
+                    required:
+                      - details
+                    properties:
+                      details:
+                        type: object
+                        required:
+                          - entity_type
+                          - entity_id
+                          - action
+                        properties:
+                          entity_type:
+                            description: 'Kind of entity, against which security permissions are violated'
+                            type: string
+                            enum:
+                              - User
+                              - Community
+                              - Project
+                              - Post
+                              - Comment
+                              - Conversation
+                              - File
+                              - Folder
+                              - File Activity Log
+                          entity_id:
+                            description: 'Identifier of the entity, against which security permissions are violated'
+                            type: string
+                          action:
+                            description: Name of an attempted operation on the entity
+                            type: string
+                            example: View
+  /users/counsel:
+    get:
+      summary: Fetches all counsel users by type
+      parameters:
+        - name: counsel_role
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - as_patient
+              - as_doctor
+              - as_admin
+          description: Fetches all counsel users
+      operationId: rest.user.get_counsel
+      security:
+        - session: []
+        - {}
+      responses:
+        '200':
+          description: Successful counsel users fetch
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - as_admin
+                  - as_doctor
+                  - as_patient
+                properties:
+                  as_admin:
+                    $ref: '#/paths/~1profile~1%7BuserId%7D~1blocked/get/responses/200/content/application~1json/schema'
+                  as_doctor:
+                    $ref: '#/paths/~1profile~1%7BuserId%7D~1blocked/get/responses/200/content/application~1json/schema'
+                  as_patient:
+                    $ref: '#/paths/~1profile~1%7BuserId%7D~1blocked/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/user/{userId}':
+    get:
+      summary: Fetches the specified user's information from all contexts
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: User ID
+      operationId: rest.user.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/paths/~1profile~1%7BuserId%7D~1blocked/get/responses/200/content/application~1json/schema/items'
+                  - type: object
+                    required:
+                      - profile
+                    properties:
+                      profile:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                          verified_email:
+                            type: string
+                          phone_number:
+                            type: string
+                          location:
+                            $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/location'
+                          about:
+                            type: string
+                          zip_code:
+                            type: string
+                      organization:
+                        type: object
+                        properties:
+                          specialty:
+                            type: array
+                            items:
+                              $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/specialities/items'
+                          organization_type:
+                            $ref: '#/paths/~1user~1%7BuserId%7D/put/requestBody/content/application~1json/schema/properties/organization/properties/organization_type'
+                          website:
+                            type: string
+                          alternative_names:
+                            type: array
+                            items:
+                              type: string
+                        required:
+                          - specialty
+                      individual:
+                        type: object
+                        properties:
+                          gender:
+                            type: string
+                          date_of_birth:
+                            type: string
+                          first_name:
+                            type: string
+                          last_name:
+                            type: string
+                          middle_name:
+                            type: string
+                          mothers_maiden_name:
+                            type: string
+                          suffix:
+                            $ref: '#/paths/~1user~1%7BuserId%7D/put/requestBody/content/application~1json/schema/properties/individual/properties/suffix'
+                          language:
+                            type: array
+                            items:
+                              type: string
+                      patient:
+                        allOf:
+                          - $ref: '#/paths/~1user~1%7BuserId%7D/put/requestBody/content/application~1json/schema/properties/patient/allOf/0'
+                          - type: object
+                            properties:
+                              patient_id:
+                                type: string
+                      doctor:
+                        $ref: '#/paths/~1user~1%7BuserId%7D/put/requestBody/content/application~1json/schema/properties/doctor'
+                      med_staff:
+                        $ref: '#/paths/~1user~1%7BuserId%7D/put/requestBody/content/application~1json/schema/properties/med_staff'
+                      researcher:
+                        $ref: '#/paths/~1user~1%7BuserId%7D/put/requestBody/content/application~1json/schema/properties/researcher'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    put:
+      summary: Updates the specified user
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.user.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                profile:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    image_url:
+                      type: string
+                    location:
+                      $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/location'
+                    about:
+                      type: string
+                    viewport:
+                      $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/viewport'
+                  required:
+                    - location
+                organization:
+                  type: object
+                  properties:
+                    specialty:
+                      type: array
+                      items:
+                        $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/specialities/items'
+                    organization_type:
+                      type: object
+                      required:
+                        - type
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - foundation
+                            - institute
+                            - hospital
+                            - research_center
+                            - custom
+                        custom_organization_type_name:
+                          type: string
+                          description: Must be filled in if the type property is set to 'custom'.
+                      example:
+                        type: custom
+                        custom_organization_type_name: Custom organization type
+                    website:
+                      type: string
+                    organization_name:
+                      type: string
+                    alternative_names:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - organization_name
+                    - specialty
+                individual:
+                  type: object
+                  properties:
+                    alias:
+                      type: string
+                    gender:
+                      type: string
+                    date_of_birth:
+                      type: string
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    middle_name:
+                      type: string
+                    mothers_maiden_name:
+                      type: string
+                    suffix:
+                      type: string
+                      enum:
+                        - Mr.
+                        - Ms.
+                        - Mrs.
+                        - Sr.
+                        - Jr.
+                        - Dr.
+                        - PhD.
+                        - Esq.
+                        - ''
+                    language:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - alias
+                patient:
+                  allOf:
+                    - type: object
+                      properties:
+                        insured:
+                          type: string
+                        insurance_carrier_text:
+                          type: string
+                        insurance_carrier_checkbox:
+                          type: string
+                        ethnicity:
+                          type: string
+                        place_of_birth:
+                          type: string
+                        diseases:
+                          type: array
+                          items:
+                            $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/diseases/items'
+                doctor:
+                  type: object
+                  properties:
+                    specialty:
+                      type: array
+                      items:
+                        $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/specialities/items'
+                    education:
+                      type: string
+                    fellowship:
+                      type: string
+                    treatment_of_diseases:
+                      type: array
+                      items:
+                        $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/diseases/items'
+                    organization_which_represented:
+                      type: array
+                      items:
+                        $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/linked_organizations/items'
+                  required:
+                    - specialty
+                    - education
+                    - treatment_of_diseases
+                    - organization_which_represented
+                med_staff:
+                  type: object
+                  properties:
+                    specialty:
+                      type: array
+                      items:
+                        $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/specialities/items'
+                    education:
+                      type: string
+                    fellowship:
+                      type: string
+                    treatment_of_diseases:
+                      type: array
+                      items:
+                        $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/diseases/items'
+                    organization_which_represented:
+                      type: array
+                      items:
+                        $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/linked_organizations/items'
+                  required:
+                    - specialty
+                    - education
+                    - organization_which_represented
+                researcher:
+                  type: object
+                  properties:
+                    organization_which_represented:
+                      type: array
+                      items:
+                        $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/linked_organizations/items'
+                    diseases:
+                      type: array
+                      items:
+                        $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/diseases/items'
+                    specialty:
+                      type: array
+                      items:
+                        $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/specialities/items'
+                  required:
+                    - organization_which_represented
+                    - diseases
+                    - specialty
+      responses:
+        '200':
+          description: Successful user update
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1user~1%7BuserId%7D/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    delete:
+      summary: Deletes the specified user
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.user.delete
+      security:
+        - session: []
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+  /user/change_password:
+    post:
+      summary: Change password
+      operationId: rest.user_change_password.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - old_password
+                - password
+              properties:
+                old_password:
+                  $ref: '#/paths/~1auth~1reset_password/put/requestBody/content/application~1json/schema/properties/password'
+                password:
+                  $ref: '#/paths/~1auth~1reset_password/put/requestBody/content/application~1json/schema/properties/password'
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /auth/login:
+    post:
+      summary: Logs previously registered user in
+      operationId: rest.auth.login.post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - account
+              properties:
+                account:
+                  type: object
+                  required:
+                    - email
+                    - password
+                  properties:
+                    email:
+                      type: string
+                    password:
+                      $ref: '#/paths/~1auth~1reset_password/put/requestBody/content/application~1json/schema/properties/password'
+                timezone:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - token
+                  - user_id
+                  - is_admin_session
+                properties:
+                  token:
+                    type: string
+                    description: Session Token
+                  token_expiration_time:
+                    type: string
+                    format: date-time
+                    description: Indicates time when JWT token becomes expired
+                    example: '2020-02-25T08:41:10+00:00'
+                  user_id:
+                    type: string
+                    description: User ID
+                  is_admin_session:
+                    type: boolean
+                    description: Indicates administrator's session
+        '400':
+          description: Basic client error
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - description
+                properties:
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - info
+                        - type
+                      properties:
+                        info:
+                          type: string
+                        type:
+                          type: string
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - text
+                        - type
+                      properties:
+                        text:
+                          type: string
+                        type:
+                          type: string
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /auth/logout:
+    post:
+      summary: Log out user from the currently open session
+      operationId: rest.auth.logout.post
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successful logout
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/paths/~1auth~1login/post/responses/400'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /auth/prolong:
+    post:
+      summary: Requests to prolong duration of the session (user activity on the client side)
+      operationId: rest.auth.prolong.post
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successful prolongation
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1logout/post/responses/200/content/application~1json/schema'
+        '400':
+          $ref: '#/paths/~1auth~1login/post/responses/400'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /auth/signup/individual:
+    post:
+      summary: Registers new individual user in the system
+      operationId: rest.auth.signup_individual.post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - account
+                - individual
+              properties:
+                account:
+                  type: object
+                  required:
+                    - email
+                    - password
+                  properties:
+                    email:
+                      type: string
+                    password:
+                      $ref: '#/paths/~1auth~1reset_password/put/requestBody/content/application~1json/schema/properties/password'
+                individual:
+                  type: object
+                  required:
+                    - alias
+                  properties:
+                    alias:
+                      type: string
+                timezone:
+                  type: string
+      responses:
+        '200':
+          description: Successful registration
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - user_id
+                properties:
+                  user_id:
+                    type: string
+                    description: User ID
+        '400':
+          $ref: '#/paths/~1auth~1login/post/responses/400'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /auth/signup/organization:
+    post:
+      summary: Registers new organization user in the system
+      operationId: rest.auth.signup_organization.post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - account
+                - organization
+              properties:
+                account:
+                  type: object
+                  required:
+                    - email
+                    - password
+                  properties:
+                    email:
+                      type: string
+                    password:
+                      $ref: '#/paths/~1auth~1reset_password/put/requestBody/content/application~1json/schema/properties/password'
+                organization:
+                  type: object
+                  required:
+                    - organization_name
+                  properties:
+                    organization_name:
+                      type: string
+                timezone:
+                  type: string
+      responses:
+        '200':
+          description: Successful registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1signup~1individual/post/responses/200/content/application~1json/schema'
+        '400':
+          $ref: '#/paths/~1auth~1login/post/responses/400'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/auth/{userId}/verify_email':
+    put:
+      summary: Verify email
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.auth.verify_email.put
+      security:
+        - session: []
+        - {}
+      responses:
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          description: The specified resource was not found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+  /auth/reset_password:
+    post:
+      summary: Reset password request - send email to user
+      operationId: rest.auth.reset_password.post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  minimum: 6
+                  maximum: 254
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+    put:
+      summary: Change password after email link
+      operationId: rest.auth.reset_password.put
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+                - token
+              properties:
+                password:
+                  type: string
+                  minimum: 10
+                  maximum: 50
+                  pattern: '^(?=.{10,50}$)(?=.*[0-9])(?=.*[a-zA-Z])(([a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};:"\\|,.<>\/?])\2?(?!\2))+$'
+                token:
+                  type: string
+                  example: slkjsdflrjlsjflwr
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /auth/validate_reset_password_token:
+    post:
+      summary: Validate reset password token
+      operationId: rest.auth.validate_reset_password_token.post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /auth/resend_verification_email:
+    post:
+      summary: Resend verification email to user
+      operationId: rest.auth.resend_verification_email.post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/paths/~1auth~1reset_password/post/requestBody/content/application~1json/schema'
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /auth/verify_one_time_code:
+    post:
+      summary: Verify one time code
+      operationId: rest.auth.verify_one_time_code.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+              properties:
+                code:
+                  type: string
+                  pattern: '^\d{6}$'
+                  example: '123456'
+                phone_number:
+                  type: string
+                  example: '+12015123454'
+      responses:
+        '200':
+          description: Successfully verified
+          $ref: '#/paths/~1feedback/post/responses/204'
+  /auth/request_one_time_code:
+    post:
+      summary: Request one time code
+      operationId: rest.auth.request_one_time_code.post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone_number:
+                  type: string
+                  example: '+12015123453'
+      security:
+        - session: []
+      responses:
+        '201':
+          description: Successfully requested
+          $ref: '#/paths/~1feedback/post/responses/204'
+  /search/results:
+    get:
+      summary: Fetches data of requested search items
+      operationId: rest.search.results.get
+      security:
+        - session: []
+        - {}
+      parameters:
+        - in: query
+          name: params
+          description: Stringifyied json data of search request
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful fetch
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - total_matches_count
+                  - search_results
+                properties:
+                  total_matches_count:
+                    type: number
+                    example: 125
+                  search_results:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - entity_kind
+                        - view_type
+                        - item
+                      properties:
+                        entity_kind:
+                          type: string
+                          example: Project
+                        view_type:
+                          type: string
+                          example: basic
+                        item:
+                          type: object
+        '400':
+          $ref: '#/paths/~1auth~1login/post/responses/400'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+  /search/aggregations:
+    get:
+      summary: Fetches data of requested search aggregation items
+      operationId: rest.search.aggregations.get
+      security:
+        - session: []
+        - {}
+      parameters:
+        - in: query
+          name: params
+          description: Stringifyied json data of search aggregation request
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful fetch
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - aggregated_entities
+                    - bucket_name
+                    - buckets
+                  properties:
+                    aggregated_entities:
+                      type: array
+                      items:
+                        type: string
+                        description: Name of a search entity enabled during aggregation request (from "Search Items" operator)
+                        example: Projects
+                    bucket_name:
+                      type: string
+                      example: AggregationGeotileGrid
+                      description: Name of the aggregation bucket corresponding to aggregate operator in request
+                    buckets:
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - aggregated_items_count
+                          - aggregation_key
+                        properties:
+                          aggregated_items_count:
+                            type: number
+                            example: 5
+                            description: Number of search documents that are grouped within this bucket
+                          aggregation_key:
+                            type: object
+                            example:
+                              lat: -31.952162238024968
+                              lon: 149.0625
+                            description: 'Attribute-specific object structure representing it''s key, used to group documents into bucket'
+                          nested_aggregations:
+                            type: array
+                            items:
+                              type: object
+                              required:
+                                - nested_bucket_name
+                                - nested_buckets
+                              properties:
+                                nested_bucket_name:
+                                  type: string
+                                  example: AggregationItemType
+                                  description: Name of the aggregation bucket corresponding to nested_aggregate_attributes in request
+                                nested_buckets:
+                                  type: array
+                                  items:
+                                    $ref: '#/paths/~1search~1aggregations/get/responses/200/content/application~1json/schema/items/properties/buckets/items'
+                                  description: Bodies of nested aggregation buckets
+                            description: Bodies of nested aggregation buckets
+                      description: Bodies of aggregation buckets
+        '400':
+          $ref: '#/paths/~1auth~1login/post/responses/400'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        default:
+          $ref: '#/paths/~1search~1results/get/responses/default'
+  /search/attributes:
+    get:
+      summary: Fetches metadata of the attributes for search
+      operationId: rest.search.attributes.index.get
+      responses:
+        '200':
+          description: Successful fetch
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - search_attributes
+                  - aggregate_attributes
+                  - sort_attributes
+                properties:
+                  search_attributes:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - name
+                        - type
+                        - operators
+                      properties:
+                        name:
+                          type: string
+                          example: Search query
+                          description: Visible name & identifier.
+                        type:
+                          type: string
+                          enum:
+                            - string
+                            - geo
+                            - number
+                          example: string
+                        operators:
+                          type: array
+                          description: Visible names of operators & identifiers.
+                          items:
+                            type: string
+                            enum:
+                              - lt
+                              - lte
+                              - eq
+                              - neq
+                              - gt
+                              - gte
+                            example: eq
+                        suggested_query_url:
+                          type: object
+                          description: По этому URL можно узнать suggested_values по одной букве. Не может быть одновременно с suggested_values.
+                          example: 'http://example.com/suggest/csi?q=examp'
+                          required:
+                            - href
+                            - method
+                          properties:
+                            href:
+                              type: string
+                              example: 'http://example.com/suggest/csi?q='
+                            method:
+                              type: string
+                              example: GET
+                        suggested_values:
+                          type: array
+                          description: Список suggested elements. Должны интерпретироваться в зависимости от type. Не может быть одновременно с suggested_query_url.
+                          items:
+                            $ref: '#/paths/~1search~1attributes/get/responses/200/content/application~1json/schema/properties/search_attributes/items/properties/default_selection'
+                        default_selection:
+                          oneOf:
+                            - type: string
+                            - type: number
+                            - type: object
+                  aggregate_attributes:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - name
+                      properties:
+                        name:
+                          type: string
+                          example: Search query
+                          description: Visible name & identifier.
+                        default_selection:
+                          oneOf:
+                            - type: string
+                            - type: number
+                            - type: object
+                  sort_attributes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: 'Например, created, reviews, likes, rating.'
+                          example: created
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+  '/search/suggest/{attributeName}':
+    get:
+      summary: Suggestion for autocomplete request in response
+      operationId: rest.search.suggest.get
+      parameters:
+        - in: query
+          name: q
+          required: true
+          description: Query.
+          schema:
+            type: string
+        - in: path
+          name: attributeName
+          required: true
+          description: Name of the attribute.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful fetch
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+  /social/profile/connections:
+    post:
+      summary: Add connection to current user by account id
+      operationId: rest.social.profile_connections.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+                  description: Account ID
+      responses:
+        '201':
+          description: Connection link has been created
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/profile/connections_counters:
+    get:
+      summary: Profile connections counters by status
+      operationId: rest.social.profile_connections.counters
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch profile connections counters
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D~1involvement_counters/get/responses/200/content/application~1json/schema'
+                type: object
+                required:
+                  - verified_count
+                properties:
+                  verified_count:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/profile/verified_connections:
+    get:
+      summary: Fetching all verified connections for current user
+      operationId: rest.social.profile_connections.index_verified
+      parameters:
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+        - $ref: '#/paths/~1files~1activity_log/get/parameters/2'
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Connection list received
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total_count
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - invitation_date
+                        - user
+                      properties:
+                        invitation_date:
+                          type: string
+                          format: date
+                        acceptance_date:
+                          type: string
+                          format: date
+                        user:
+                          $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema/items'
+                  total_count:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/profile/received_connections_requests:
+    get:
+      summary: Fetching all received requests for current user
+      operationId: rest.social.profile_connections.requests.index_received
+      parameters:
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+        - $ref: '#/paths/~1files~1activity_log/get/parameters/2'
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Received requests list was received
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1profile~1verified_connections/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/profile/sent_connections_requests:
+    get:
+      summary: Fetching all sent requests by current user
+      operationId: rest.social.profile_connections.requests.index
+      parameters:
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+        - $ref: '#/paths/~1files~1activity_log/get/parameters/2'
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Sent requests list was received
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1profile~1verified_connections/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/profile/verified_connections/{userId}':
+    get:
+      summary: Fetching a foreign user's connection requests (Admin only)
+      operationId: rest.social.profile_connections.index_foreign_verified
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+        - $ref: '#/paths/~1files~1activity_log/get/parameters/2'
+      security:
+        - session: []
+      responses:
+        '200':
+          description: User sent verified connection requests sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1profile~1verified_connections/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/social/profile/received_connections_requests/{userId}':
+    get:
+      summary: Fetching a foreign user's connection requests received (Admin only)
+      operationId: rest.social.profile_connections.requests.index_foreign_received
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      security:
+        - session: []
+      responses:
+        '200':
+          description: User sent connection received requests sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1profile~1verified_connections/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/social/profile/sent_connections_requests/{userId}':
+    get:
+      summary: Fetching a foreign user's sent connection requests (Admin only)
+      operationId: rest.social.profile_connections.requests.index_foreign
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      security:
+        - session: []
+      responses:
+        '200':
+          description: User sent connection requests sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1profile~1verified_connections/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/social/profile/connection/{userId}':
+    delete:
+      summary: Remove connection by account id
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.social.profile_connections.delete
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Connection link has been dropped
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    put:
+      summary: Accept or decline connection by account id
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.social.profile_connections.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - connection_status
+              properties:
+                connection_status:
+                  type: string
+                  enum:
+                    - Verified
+                    - Rejected
+      responses:
+        '200':
+          description: Connection link has been accepted
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/profile/messaging/access:
+    post:
+      summary: Logs the current user into messaging external service and returns access token for client SDK
+      operationId: rest.social.profile_messaging.access.post
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Succesfull fetching of profile's individual access token to messaging system
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - service_name
+                  - access_token
+                properties:
+                  service_name:
+                    type: string
+                    description: Name that identifies particular messaging platform in use
+                    example: twilio
+                  access_token:
+                    type: string
+                    description: 'Access token to propagate to messaging platform''s SDK (usually, a JWT token)'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/profile/messaging/notify_channel:
+    get:
+      summary: Returns data of current's profile individual messaging channel for system notifications
+      operationId: rest.social.profile_messaging.notify_channel.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Succesfull fetching of profile's individual notifications channel data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - service_name
+                  - channel_external_id
+                  - readonly
+                properties:
+                  service_name:
+                    type: string
+                    description: Name that identifies particular messaging platform in use
+                    example: twilio
+                  channel_external_id:
+                    type: string
+                    description: 'Identity of the channel in external messaging platform, is required for client SDKs'
+                    example: CH0d521c798f004fbf874d6fabfbd0df84
+                  readonly:
+                    type: boolean
+                    description: True value indicates if current user has permission to send the messages to this channel
+                    example: true
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/conversations:
+    post:
+      summary: Creates a conversation
+      operationId: rest.social.conversations.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - participant_user_ids
+                - kind
+              properties:
+                title:
+                  type: string
+                participant_user_ids:
+                  type: array
+                  items:
+                    type: string
+                  description: User IDs
+                kind:
+                  type: string
+                  enum:
+                    - Private
+                    - Group
+      responses:
+        '201':
+          description: Successful conversations creation
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - entity_id
+                  - title
+                  - kind
+                  - participants
+                  - messaging_channel_basic
+                properties:
+                  entity_id:
+                    type: string
+                    description: Conversation ID
+                  title:
+                    type: string
+                    description: Conversation title text
+                  kind:
+                    $ref: '#/paths/~1social~1conversations/post/requestBody/content/application~1json/schema/properties/kind'
+                  participants:
+                    $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema'
+                  messaging_channel_basic:
+                    $ref: '#/paths/~1social~1profile~1messaging~1notify_channel/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/conversations/{conversationId}/title':
+    put:
+      summary: Updates the title of the conversation
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: Conversation ID
+      operationId: rest.social.conversation_title.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+    delete:
+      summary: Resets the title of the conversation
+      parameters:
+        - $ref: '#/paths/~1social~1conversations~1%7BconversationId%7D~1title/put/parameters/0'
+      operationId: rest.social.conversation_title.delete
+      security:
+        - session: []
+      responses:
+        '200':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /social/communities:
+    get:
+      summary: View all communities for current user
+      parameters:
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.communities.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total_count
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1communities/post/responses/201/content/application~1json/schema'
+                  total_count:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    post:
+      summary: Create a new community
+      operationId: rest.social.communities.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - type
+                - specialities
+                - location
+                - viewport
+                - status
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                website:
+                  type: string
+                type:
+                  type: string
+                specialities:
+                  type: array
+                  items:
+                    $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/specialities/items'
+                location:
+                  $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/location'
+                viewport:
+                  $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/viewport'
+                status:
+                  type: string
+                  enum:
+                    - open
+                    - closed
+                linked_communities:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Successfully created a new community
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - entity_id
+                  - permissions
+                  - title
+                  - description
+                  - type
+                  - specialities
+                  - location
+                  - status
+                  - creator
+                  - actor_role
+                properties:
+                  entity_id:
+                    type: string
+                  permissions:
+                    type: object
+                    required:
+                      - view
+                      - update
+                      - add_leader
+                      - remove_leader
+                      - remove
+                      - invite_users
+                      - view_invitations
+                      - leave
+                      - request_to_join
+                      - accept_join_request
+                      - deny_join_request
+                      - view_join_requests
+                      - request_to_link
+                      - accept_link_request
+                      - deny_link_request
+                      - unlink
+                      - view_members
+                      - remove_member
+                      - view_projects
+                      - create_project
+                      - remove_project
+                      - view_posts
+                      - add_post
+                    properties:
+                      view:
+                        type: boolean
+                      update:
+                        type: boolean
+                      add_leader:
+                        type: boolean
+                      remove_leader:
+                        type: boolean
+                      remove:
+                        type: boolean
+                      invite_users:
+                        type: boolean
+                      view_invitations:
+                        type: boolean
+                      leave:
+                        type: boolean
+                      request_to_join:
+                        type: boolean
+                      view_join_requests:
+                        type: boolean
+                      accept_join_request:
+                        type: boolean
+                      deny_join_request:
+                        type: boolean
+                      request_to_link:
+                        type: boolean
+                      accept_link_request:
+                        type: boolean
+                      deny_link_request:
+                        type: boolean
+                      unlink:
+                        type: boolean
+                      view_members:
+                        type: boolean
+                      remove_member:
+                        type: boolean
+                      view_projects:
+                        type: boolean
+                      create_project:
+                        type: boolean
+                      remove_project:
+                        type: boolean
+                      view_posts:
+                        type: boolean
+                      add_post:
+                        type: boolean
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  website:
+                    type: string
+                  type:
+                    type: string
+                  specialities:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/specialities/items'
+                  location:
+                    $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/location'
+                  status:
+                    $ref: '#/paths/~1social~1communities/post/requestBody/content/application~1json/schema/properties/status'
+                  creator:
+                    $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema/items'
+                  linked_communities:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1communities/post/responses/201/content/application~1json/schema'
+                  linked_communities_members:
+                    $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema'
+                  actor_role:
+                    $ref: '#/paths/~1social~1projects/post/responses/201/content/application~1json/schema/properties/actor_role'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/{userId}/communities':
+    get:
+      summary: View communities of specific user
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.user_communities.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1communities/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/community/{communityId}':
+    get:
+      summary: View community
+      parameters:
+        - in: path
+          name: communityId
+          required: true
+          schema:
+            type: string
+          description: Community ID
+      operationId: rest.social.communities.get
+      security:
+        - session: []
+        - {}
+      responses:
+        '200':
+          description: Successfully fetched a community
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1communities/post/responses/201/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    put:
+      summary: Edit community
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+      operationId: rest.social.communities.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - type
+                - specialities
+                - location
+                - status
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                website:
+                  type: string
+                type:
+                  type: string
+                specialities:
+                  type: array
+                  items:
+                    $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/specialities/items'
+                location:
+                  $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/location'
+                viewport:
+                  $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/viewport'
+                status:
+                  $ref: '#/paths/~1social~1communities/post/requestBody/content/application~1json/schema/properties/status'
+                linked_communities:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Successfully edited a community
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1communities/post/responses/201/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    delete:
+      summary: Remove community
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+      operationId: rest.social.communities.delete
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully removed a community
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1logout/post/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/community/{communityId}/leaders':
+    get:
+      summary: Fetch all community leaders
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+      operationId: rest.social.community_leaders.index
+      security:
+        - session: []
+        - {}
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1users/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/community/{communityId}/members':
+    get:
+      summary: View members list
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.community_members.index
+      security:
+        - session: []
+        - {}
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1users/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    post:
+      summary: 'Invite a user to the community, join the community, send request to join'
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+      operationId: rest.social.community_members.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/post/requestBody/content/application~1json/schema'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1logout/post/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/community/{communityId}/member/{userId}':
+    delete:
+      summary: 'Leave the community, remove a user from members'
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.social.community_members.delete
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1logout/post/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    put:
+      summary: 'Community lead accepts join request to become the community member, or invited profile accepts lead''s invitation'
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.social.community_members.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - invitation_status
+              properties:
+                invitation_status:
+                  type: string
+                  enum:
+                    - Approved
+                    - Rejected
+                  default: Approved
+      responses:
+        '200':
+          description: Successfully status of the community updated
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/social/community/{communityId}/requests':
+    get:
+      summary: Fetch all user requests to join a specific community
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.community_requests.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successful fetched all user requests to join a specific community
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - user
+                        - creation_date
+                      properties:
+                        user:
+                          $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema/items'
+                        invite_type:
+                          $ref: '#/paths/~1social~1projects~1requests/get/responses/200/content/application~1json/schema/properties/items/items/properties/invite_type'
+                        creation_date:
+                          type: string
+                          format: date-time
+                          example: '2020-02-25T08:41:10+00:00'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/community/{communityId}/sent_invitations':
+    get:
+      summary: Fetch all sent invitations by user for a specific community
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.community_invites.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetched all sent invitations by user for a specific community
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1community~1%7BcommunityId%7D~1requests/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/community/{communityId}/involvement_counters':
+    get:
+      summary: Get counters for communities centric user involvement
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+      operationId: rest.social.community_involvement_counters.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - requests_sent
+                  - requests_received
+                properties:
+                  requests_sent:
+                    type: number
+                  requests_received:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /social/communities/invitations:
+    get:
+      summary: View all invitations to join communities
+      operationId: rest.social.communities_got_invitations.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetched all invitations to join communities
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total_count
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - community
+                        - creation_date
+                      properties:
+                        community:
+                          $ref: '#/paths/~1social~1communities/post/responses/201/content/application~1json/schema'
+                        invite_type:
+                          $ref: '#/paths/~1social~1projects~1requests/get/responses/200/content/application~1json/schema/properties/items/items/properties/invite_type'
+                        creation_date:
+                          type: string
+                          format: date-time
+                          example: '2020-02-25T08:41:10+00:00'
+                  total_count:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /social/communities/sent_requests:
+    get:
+      summary: View all sent requests to join communities
+      operationId: rest.social.communities_sent_requests.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetched all sent invitation requests to join communities
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1communities~1invitations/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /social/communities/involvement_counters:
+    get:
+      summary: Get counters for user communities social involvement
+      operationId: rest.social.communities_involvement_counters.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1profile~1connections_counters/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/community/{communityId}/projects':
+    get:
+      summary: View projects list
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.community_projects.index
+      security:
+        - session: []
+        - {}
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1projects/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/projects:
+    get:
+      summary: View projects of current user
+      parameters:
+        - name: offset
+          in: query
+          description: The number of items to skip before starting to collect the result set
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+          description: The numbers of items to return
+      operationId: rest.social.projects.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total_count
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1projects/post/responses/201/content/application~1json/schema'
+                  total_count:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    post:
+      summary: Create a new project
+      operationId: rest.social.projects.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - validity_period
+                - type
+                - diseases
+                - specialities
+                - location
+                - viewport
+                - linked_organizations
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                validity_period:
+                  type: object
+                  required:
+                    - start_date
+                    - end_date
+                  properties:
+                    start_date:
+                      $ref: '#/paths/~1folders/post/responses/201/content/application~1json/schema/properties/created'
+                    end_date:
+                      $ref: '#/paths/~1folders/post/responses/201/content/application~1json/schema/properties/created'
+                website:
+                  type: string
+                type:
+                  type: string
+                diseases:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - AAA
+                      - AcanthamoebaI
+                      - ACE
+                      - AcinetobacterI
+                      - AdenovirusI
+                      - ADHD
+                      - AFib
+                      - AFM
+                      - AT
+                      - AS
+                      - AHF
+                      - AIDS
+                      - ALS
+                      - AD
+                      - AFI
+                      - AnisakisI
+                      - Anthrax
+                      - ARI
+                      - AAR
+                      - AA
+                      - ADS
+                      - ArenavirusIs
+                      - Arthritis
+                      - AscarisI
+                      - AIA
+                      - Asthma
+                      - Autism
+                      - AIBFH5N1
+                      - BCI
+                      - BIB
+                      - BM
+                      - BV
+                      - IBMI
+                      - BI
+                      - BAD
+                      - BirthDefects
+                      - BLCWP
+                      - BIBHI
+                      - BBDI
+                      - BC
+                      - BloodDisorders
+                      - BL
+                      - LBRF
+                      - TBRF
+                      - Botulism
+                      - BrainerdDiarrhea
+                      - BreastC
+                      - Bronchiolitis
+                      - BrucellaI
+                      - BunyavirusIs
+                      - CGC
+                      - CNC
+                      - Campy
+                      - Cancer
+                      - CnF
+                      - CHD
+                      - CAI
+                      - CF
+                      - CapillariaI
+                      - CTS
+                      - CDBBI
+                      - CCHF
+                      - CDI
+                      - CDSI
+                      - CerebralPalsy
+                      - CervicalC
+                      - CDATTCI
+                      - CCB
+                      - CHHF
+                      - CVD
+                      - CHIKV
+                      - CHA
+                      - CHI
+                      - CHO
+                      - CHOW
+                      - CCnC
+                      - CPneI
+                      - CPsiI
+                      - Chlamydia
+                      - Cholera
+                      - CFP
+                      - CMT
+                      - CJD
+                      - CKD
+                      - ClonorchisI
+                      - CDiffI
+                      - CPI
+                      - CTITD
+                      - CDTT
+                      - CMV
+                      - CCC
+                      - CC
+                      - Concussion
+                      - CHL
+                      - CHDs
+                      - COPD
+                      - CoV
+                      - COVID-19
+                      - CRE
+                      - CCHD
+                      - CRKP
+                      - CDIBD
+                      - CronobacterI
+                      - Cryptosporidiosis
+                      - CSD
+                      - CTE
+                      - CTF
+                      - CWD
+                      - CABAI
+                      - CIC
+                      - Cysticercosis
+                      - CII
+                      - DVT
+                      - Dementia
+                      - Dengue
+                      - DD
+                      - Diabetes
+                      - DFI
+                      - Diphtheria
+                      - DiphyllobothriumI
+                      - DipylidiumI
+                      - DFR
+                      - DB
+                      - DH
+                      - DownS
+                      - DRAAR
+                      - DuaneS
+                      - DT
+                      - ECI
+                      - EIOM
+                      - EBV
+                      - Echinococcosis
+                      - EEE
+                      - EI
+                      - EID
+                      - EHI
+                      - EV-D68
+                      - EINP
+                      - ET
+                      - Epilepsy
+                      - EMD
+                      - EVD
+                      - ER
+                      - FFE
+                      - FWI
+                      - FasciolaI
+                      - FasciolopsisI
+                      - FASD
+                      - Fibromyalgia
+                      - FD
+                      - FilovirusIs
+                      - FlavivirusIs
+                      - FLLD
+                      - FBMT
+                      - Flu
+                      - FIs
+                      - FXS
+                      - FDs
+                      - FEIFE
+                      - FK
+                      - FM
+                      - GAE
+                      - GDFA
+                      - GCC
+                      - GHD
+                      - GMH
+                      - GO
+                      - GSC
+                      - GS
+                      - GCVVC
+                      - GH
+                      - GMRV
+                      - GIG
+                      - GBM
+                      - GGI
+                      - GNGI
+                      - Gout
+                      - GASI
+                      - GBSI
+                      - GBS
+                      - GWDD
+                      - GCs
+                      - H1N1F
+                      - H3N2v
+                      - HAB
+                      - HFMD
+                      - HLPHC
+                      - HAI
+                      - HSnRWI
+                      - HEDnI
+                      - HI
+                      - HLE
+                      - HLC
+                      - HDCH
+                      - HVI
+                      - HS
+                      - Hemoglobinopathies
+                      - HepatitisA
+                      - HepatitisB
+                      - HBD
+                      - HBV
+                      - HerpesvirusSimiae
+                      - HZ
+                      - HIH
+                      - HeVI
+                      - HibI
+                      - HCI
+                      - HIV
+                      - HIV/AIDS
+                      - HIV/AIDSnSTDs
+                      - HD
+                      - HTR
+                      - HTHPIV
+                      - HPS
+                      - HPV-AC
+                      - HPVI
+                      - HA
+                      - HE
+                      - HH
+                      - HHBP
+                      - HEH
+                      - HEC
+                      - IBD
+                      - IGASI
+                      - IFD
+                      - IFFA
+                      - IFFAA
+                      - IFH
+                      - IFR
+                      - IFW
+                      - Infertility
+                      - Influenza
+                      - InC
+                      - InvasiveCandidiasis
+                      - JCVI
+                      - JE
+                      - KP
+                      - KSKD
+                      - KFD
+                      - LACV
+                      - LF
+                      - LA
+                      - LCM
+                      - LP
+                      - LDLPF
+                      - LILKA
+                      - Leprosy
+                      - LeptospiraI
+                      - ListeriaI
+                      - LDnH
+                      - LTD
+                      - Loiasis
+                      - LUHF
+                      - LC
+                      - LSLE
+                      - LD
+                      - LFLE
+                      - MAC
+                      - MCD
+                      - Malaria
+                      - MHF
+                      - MDRTB
+                      - Measles
+                      - ME/CFS
+                      - Melioidosis
+                      - Meningitis
+                      - MH
+                      - MHG
+                      - MR
+                      - MERS-CoV
+                      - Microcephaly
+                      - MM
+                      - MI
+                      - MC
+                      - MBVI
+                      - Monkeypox
+                      - MVI
+                      - MRSA
+                      - Mucormycosis
+                      - MODS
+                      - Mumps
+                      - MD
+                      - MAI
+                      - MTI
+                      - MPI
+                      - Myiasis
+                      - NFA
+                      - Neurocysticercosis
+                      - NJK
+                      - NNAI
+                      - NHML
+                      - NPEI
+                      - NIAI
+                      - NLV
+                      - 2019-nCoV
+                      - NTD
+                      - OG
+                      - OnOW
+                      - OCs
+                      - OSC
+                      - OStress
+                      - OAF
+                      - OHF
+                      - OI
+                      - OALT
+                      - OralC
+                      - OA
+                      - OvarianC
+                      - OWnO
+                      - PAD
+                      - PAM
+                      - PF
+                      - PIP
+                      - PDs
+                      - PCP
+                      - PE
+                      - PI
+                      - PAInsufficiency
+                      - PAOD
+                      - PVD
+                      - PID
+                      - PEC
+                      - PIEVI
+                      - PYPI
+                      - PneumococcalD
+                      - PCPI
+                      - Pneumonia
+                      - PoliI
+                      - POW
+                      - PoxvirusIs
+                      - Pregnancy
+                      - ProstateC
+                      - PEP
+                      - PAI
+                      - Psoriasis
+                      - PLP
+                      - PH
+                      - QF
+                      - Rabies
+                      - RRI
+                      - RBF
+                      - RA
+                      - RDs
+                      - RVF
+                      - RFA
+                      - RDI
+                      - RBO
+                      - RMSF
+                      - RVI
+                      - RN
+                      - RWI
+                      - SIFA
+                      - SIS
+                      - SI
+                      - SARS
+                      - Scabies
+                      - SFA
+                      - SIB
+                      - ST
+                      - SF
+                      - SD
+                      - Sepsis
+                      - SFGR
+                      - ShIS
+                      - SCD
+                      - SIDS
+                      - Sinusitus
+                      - SkinC
+                      - SnSD
+                      - Smallpox
+                      - STH
+                      - SMIOVI
+                      - SoreT
+                      - STARI
+                      - SBM
+                      - SSSI
+                      - Staph
+                      - STDs
+                      - STDsnHIV/AIDS
+                      - STEC
+                      - SIGA
+                      - SIGB
+                      - STA
+                      - SPI
+                      - Stroke
+                      - SnG
+                      - SSI
+                      - SwineI
+                      - STPI
+                      - TITI
+                      - TB
+                      - TBnHIVC
+                      - TC
+                      - TCA
+                      - TAA
+                      - Thrush
+                      - Tinea
+                      - TS
+                      - Toxocariasis
+                      - Toxoplasmosis
+                      - TI
+                      - TOI
+                      - TFBQI
+                      - Trichinellosis
+                      - Trichomoniasis
+                      - TWI
+                      - TSEs
+                      - TBMTI
+                      - Tularemia
+                      - TF
+                      - UCIBD
+                      - URIs
+                      - URDO
+                      - UC
+                      - VnVCs
+                      - VC
+                      - VFFPC
+                      - VI
+                      - VV
+                      - VCJD
+                      - VBDs
+                      - VHF
+                      - VIs
+                      - VH
+                      - VMAM
+                      - VISA/VRSA
+                      - VIP
+                      - VRE
+                      - VWD
+                      - YF
+                      - Yersiniosis
+                      - WNVI
+                      - WCP
+                      - WBDs
+                      - XDRTB
+                      - ZVI
+                      - ZDsFA
+                      - ZH
+                      - Zygomycosis
+                funding_source:
+                  type: string
+                specialities:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - AAA
+                      - AR
+                      - AcanthamoebaI
+                      - AcinetobacterI
+                      - AIDS
+                      - AFM
+                      - AP
+                      - AdenovirusI
+                      - AdolescentMed
+                      - ACA
+                      - ARO
+                      - AHFTC
+                      - ACE
+                      - AT
+                      - AS
+                      - AHF
+                      - AnI
+                      - AD
+                      - AFI
+                      - ALS
+                      - Anesthesiology
+                      - AnisakisI
+                      - Anthrax
+                      - ARI
+                      - AAR
+                      - AA
+                      - ADS
+                      - ArenavirusIs
+                      - Arthritis
+                      - AscarisI
+                      - AIA
+                      - Asthma
+                      - AFib
+                      - ADHD
+                      - Autism
+                      - AIBFH5N1
+                      - BCI
+                      - BIB
+                      - BM
+                      - BV
+                      - IBMI
+                      - BI
+                      - BG
+                      - BAD
+                      - BirthDefects
+                      - BLCWP
+                      - BIBHI
+                      - BBDI
+                      - BBTM
+                      - BC
+                      - BD
+                      - BL
+                      - LBRF
+                      - TBRF
+                      - Botulism
+                      - BrainerdDiarrhea
+                      - BreastC
+                      - Bronchiolitis
+                      - BrucellaI
+                      - BunyavirusIs
+                      - CGC
+                      - CNC
+                      - Campy
+                      - Cancer
+                      - CnF
+                      - CHD
+                      - CAI
+                      - CF
+                      - CapillariaI
+                      - CR
+                      - CD
+                      - CTS
+                      - CDBBI
+                      - CCHF
+                      - CDI
+                      - CDSI
+                      - CerebralPalsy
+                      - CervicalC
+                      - CDATTCI
+                      - ChemicalPatholog
+                      - CCB
+                      - CHHF
+                      - CVD
+                      - CHIKV
+                      - CnAP
+                      - CAP
+                      - CHA
+                      - CHI
+                      - CHO
+                      - CHOW
+                      - CN
+                      - CCnC
+                      - CPneI
+                      - CPsiI
+                      - Chlamydia
+                      - Cholera
+                      - CFP
+                      - CMT
+                      - CJD
+                      - CKD
+                      - CCE
+                      - CNP
+                      - ClonorchisI
+                      - CCLI
+                      - CDiffI
+                      - CPI
+                      - CTITD
+                      - CDTT
+                      - CMV
+                      - CnR
+                      - CCC
+                      - CC
+                      - Concussion
+                      - CCS
+                      - CHL
+                      - CHDs
+                      - COPD
+                      - CoV
+                      - COVID-19
+                      - CS
+                      - CRE
+                      - CCM
+                      - CCHD
+                      - CRKP
+                      - CDIBD
+                      - CronobacterI
+                      - Cryptosporidiosis
+                      - CSD
+                      - CTE
+                      - CTF
+                      - CWD
+                      - CABAI
+                      - CIC
+                      - Cysticercosis
+                      - CII
+                      - Cytopathology
+                      - DVT
+                      - Dementia
+                      - Dengue
+                      - Dermatology
+                      - Dermatopathology
+                      - DBP
+                      - DD
+                      - Diabetes
+                      - DFI
+                      - Diphtheria
+                      - DiphyllobothriumI
+                      - DipylidiumI
+                      - DFR
+                      - DB
+                      - DH
+                      - DownS
+                      - DR
+                      - DuaneS
+                      - DT
+                      - ECI
+                      - EIOM
+                      - EBV
+                      - Echinococcosis
+                      - EEE
+                      - EI
+                      - EM
+                      - EID
+                      - EDM
+                      - ESNN
+                      - ESNRD
+                      - ESNNS
+                      - EHI
+                      - EV-D68
+                      - EINP
+                      - ET
+                      - Epilepsy
+                      - EMD
+                      - EVD
+                      - ER
+                      - FFE
+                      - FMedicine
+                      - FPractice
+                      - FWI
+                      - FasciolaI
+                      - FasciolopsisI
+                      - FPMnRS
+                      - FASD
+                      - Fibromyalgia
+                      - FD
+                      - FilovirusIs
+                      - FlavivirusIs
+                      - FLLD
+                      - FBMT
+                      - Flu
+                      - FIs
+                      - FnAO
+                      - FPathology
+                      - FPsychiatry
+                      - FXS
+                      - FDs
+                      - FEIFE
+                      - FK
+                      - FM
+                      - GAE
+                      - Gastroenterology
+                      - GDFA
+                      - GCC
+                      - GHD
+                      - GMH
+                      - GO
+                      - GSC
+                      - GS
+                      - GCVVC
+                      - GH
+                      - GFM
+                      - GFP
+                      - GIM
+                      - GP
+                      - GMRV
+                      - GIG
+                      - GBM
+                      - GGI
+                      - GNGI
+                      - Gout
+                      - GASI
+                      - GBSI
+                      - GBS
+                      - GWDD
+                      - GCs
+                      - H1N1F
+                      - H3N2v
+                      - HAB
+                      - HFMD
+                      - HSOS
+                      - HSPS
+                      - HSSG
+                      - HLPHC
+                      - HAI
+                      - HSnRWI
+                      - HEDnI
+                      - HI
+                      - HLE
+                      - HLIC
+                      - HDCH
+                      - HVI
+                      - HS
+                      - HnO
+                      - HIM
+                      - HPAnC
+                      - Hemoglobinopathies
+                      - HepatitisA
+                      - HepatitisB
+                      - HBD
+                      - HBV
+                      - HVS
+                      - HZ
+                      - HIH
+                      - HeVI
+                      - HibI
+                      - HCI
+                      - HIV
+                      - HIV/AIDS
+                      - HIV/AIDSnSTDs
+                      - HD
+                      - HTR
+                      - HTHPIV
+                      - HPS
+                      - HPV-AC
+                      - HPVI
+                      - HA
+                      - HE
+                      - HH
+                      - HHBP
+                      - HEH
+                      - HEC
+                      - IBD
+                      - IGASI
+                      - IFD
+                      - IFFA
+                      - IFFAA
+                      - IFH
+                      - IFR
+                      - IFW
+                      - ID
+                      - Infertility
+                      - Influenza
+                      - InC
+                      - IM
+                      - IMP
+                      - IC
+                      - InvasiveCandidiasis
+                      - JCVI
+                      - JE
+                      - KP
+                      - KSKD
+                      - KFD
+                      - LACV
+                      - LF
+                      - LBF
+                      - LA
+                      - LCM
+                      - LP
+                      - LDLPF
+                      - LILKA
+                      - Leprosy
+                      - LeptospiraI
+                      - ListeriaI
+                      - LDnH
+                      - LTD
+                      - Loiasis
+                      - LUHF
+                      - LC
+                      - LSLE
+                      - LD
+                      - LFLE
+                      - MAC
+                      - MCD
+                      - Malaria
+                      - MHF
+                      - MDRTB
+                      - Measles
+                      - MG
+                      - MedM
+                      - MTEM
+                      - MTPM
+                      - ME/CFS
+                      - Melioidosis
+                      - Meningitis
+                      - MH
+                      - MHG
+                      - MR
+                      - MERS-CoV
+                      - Microcephaly
+                      - MM
+                      - MI
+                      - MGP
+                      - MC
+                      - MBVI
+                      - Monkeypox
+                      - MVI
+                      - MRSA
+                      - Mucormycosis
+                      - MODS
+                      - Mumps
+                      - MRy
+                      - MD
+                      - MO
+                      - MAI
+                      - MTI
+                      - MPI
+                      - Myiasis
+                      - NFA
+                      - NPM
+                      - Nephrology
+                      - Neurocysticercosis
+                      - NS
+                      - Neurology
+                      - NMN
+                      - PMPMnR
+                      - Neuropathology
+                      - Neuroradiology
+                      - NJK
+                      - NNAI
+                      - NHML
+                      - NPEI
+                      - NIAI
+                      - NLV
+                      - 2019-nCoV
+                      - NTD
+                      - NM
+                      - NR
+                      - OG
+                      - OnOW
+                      - ObstetricAnesthesiology
+                      - OnG
+                      - OCs
+                      - OSC
+                      - OStress
+                      - OAF
+                      - OHF
+                      - Oncology
+                      - OPnRS
+                      - Ophthalmogy
+                      - OI
+                      - OALT
+                      - OralC
+                      - OSM
+                      - OS
+                      - OSS
+                      - OT
+                      - OA
+                      - Otolaryngology
+                      - O-N
+                      - OvarianC
+                      - OWnO
+                      - PMA
+                      - PMN
+                      - PMPMR
+                      - PAM
+                      - PF
+                      - PIP
+                      - PDs
+                      - PAnC
+                      - PCP
+                      - PE
+                      - PI
+                      - PA
+                      - PC
+                      - PCCM
+                      - PEM
+                      - PEMP
+                      - PEE
+                      - PGE
+                      - PHO
+                      - PIDs
+                      - PN
+                      - PO
+                      - POL
+                      - PedPathology
+                      - PedPulmonology
+                      - PedRadiology
+                      - PedRheumatology
+                      - Pediatrics
+                      - PSM
+                      - PS
+                      - PTH
+                      - PU
+                      - PAD
+                      - PAInsufficiency
+                      - PAOD
+                      - PVD
+                      - PMnR
+                      - PID
+                      - PEC
+                      - PIEVI
+                      - PYPI
+                      - PlasticSurgery
+                      - PneumococcalD
+                      - PCPI
+                      - Pneumonia
+                      - PoliI
+                      - POW
+                      - PoxvirusIs
+                      - Pregnancy
+                      - PreventiveMed
+                      - ProceduralDermatology
+                      - ProstateC
+                      - PEP
+                      - PAI
+                      - Psoriasis
+                      - Psychiatry
+                      - PLP
+                      - PulmonaryD
+                      - PDnCCM
+                      - PH
+                      - QF
+                      - Rabies
+                      - RRI
+                      - RO
+                      - R-D
+                      - RBF
+                      - RA
+                      - Rheumatology
+                      - RDs
+                      - RVF
+                      - RFA
+                      - RDI
+                      - RBO
+                      - RMSF
+                      - RVI
+                      - RN
+                      - RWI
+                      - SIFA
+                      - SIS
+                      - SI
+                      - SARS
+                      - Scabies
+                      - SFA
+                      - SIB
+                      - ScrubT
+                      - SF
+                      - SD
+                      - Sepsis
+                      - SFGR
+                      - ShIS
+                      - SCD
+                      - SIDS
+                      - Sinusitus
+                      - SkinC
+                      - SnSD
+                      - SM
+                      - Smallpox
+                      - STH
+                      - SMIOVI
+                      - SoreT
+                      - STARI
+                      - SBM
+                      - SCIM
+                      - SSSI
+                      - SMEM
+                      - SMFM
+                      - SMIM
+                      - SMPMR
+                      - Staph
+                      - STDs
+                      - STDsnHIV/AIDS
+                      - STEC
+                      - SIGA
+                      - SIGB
+                      - STGASI
+                      - SPI
+                      - Stroke
+                      - SnG
+                      - SSI
+                      - S-G
+                      - SCC
+                      - SwineI
+                      - STPI
+                      - TITI
+                      - TB
+                      - TBnHIVC
+                      - TC
+                      - TCA
+                      - TAA
+                      - ThoracicSurgery
+                      - TSI
+                      - Thrush
+                      - Tinea
+                      - TS
+                      - Toxocariasis
+                      - Toxoplasmosis
+                      - TI
+                      - TH
+                      - TOI
+                      - TFBQI
+                      - Trichinellosis
+                      - Trichomoniasis
+                      - TWI
+                      - TSEs
+                      - TBMTI
+                      - Tularemia
+                      - TF
+                      - UCIBD
+                      - URIs
+                      - URDO
+                      - Urology
+                      - UC
+                      - VnVCs
+                      - VC
+                      - VFFPC
+                      - VI
+                      - VV
+                      - VnIR
+                      - VS
+                      - VCJD
+                      - VBDs
+                      - VHF
+                      - VIs
+                      - VH
+                      - VMAM
+                      - VISA/VRSA
+                      - VIP
+                      - VRE
+                      - VWD
+                      - YF
+                      - Yersiniosis
+                      - WNVI
+                      - WCP
+                      - WBDs
+                      - XDRTB
+                      - ZVI
+                      - ZDsFA
+                      - ZH
+                      - Zygomycosis
+                location:
+                  type: object
+                  required:
+                    - country
+                    - city
+                    - center
+                  properties:
+                    country:
+                      type: object
+                      required:
+                        - alpha2
+                        - full_name
+                      properties:
+                        alpha2:
+                          type: string
+                          example: UA
+                        full_name:
+                          type: string
+                          example: Ukraine
+                    region:
+                      type: string
+                      example: California
+                    subregion:
+                      type: string
+                      example: Sonoma County
+                    province:
+                      type: string
+                      example: Bodega bay
+                    city:
+                      type: string
+                      example: Irvine
+                    street:
+                      type: string
+                    center:
+                      type: object
+                      required:
+                        - lat
+                        - lon
+                      properties:
+                        lat:
+                          type: number
+                          example: 38.8951
+                        lon:
+                          type: number
+                          example: -77.0364
+                viewport:
+                  type: object
+                  required:
+                    - northeast
+                    - southwest
+                  properties:
+                    northeast:
+                      $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/location/properties/center'
+                    southwest:
+                      $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/location/properties/center'
+                community_id:
+                  type: string
+                linked_projects:
+                  type: array
+                  items:
+                    type: string
+                linked_organizations:
+                  type: array
+                  items:
+                    required:
+                      - organization_name
+                      - organization_link_kind
+                    properties:
+                      organization_name:
+                        type: string
+                      organization_link_kind:
+                        type: string
+                        enum:
+                          - REGISTERED
+                          - CUSTOM
+                      organization_user_id:
+                        type: string
+      responses:
+        '201':
+          description: Successfully created a new project
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - entity_id
+                  - permissions
+                  - title
+                  - description
+                  - type
+                  - diseases
+                  - specialities
+                  - location
+                  - creator
+                  - validity_period
+                  - verification_status
+                  - linked_organizations
+                  - actor_role
+                properties:
+                  entity_id:
+                    type: string
+                  permissions:
+                    type: object
+                    required:
+                      - view
+                      - update
+                      - add_leader
+                      - remove_leader
+                      - remove
+                      - extend
+                      - request_to_reactivate
+                      - accept_reactivation_request
+                      - deny_reactivation_request
+                      - invite_users
+                      - view_invitations
+                      - leave
+                      - request_to_join
+                      - view_join_requests
+                      - accept_join_request
+                      - deny_join_request
+                      - request_to_link
+                      - accept_link_request
+                      - deny_link_request
+                      - unlink
+                      - view_members
+                      - remove_member
+                      - view_posts
+                      - add_post
+                    properties:
+                      view:
+                        type: boolean
+                      update:
+                        type: boolean
+                      add_leader:
+                        type: boolean
+                      remove_leader:
+                        type: boolean
+                      remove:
+                        type: boolean
+                      extend:
+                        type: boolean
+                      request_to_reactivate:
+                        type: boolean
+                      accept_reactivation_request:
+                        type: boolean
+                      deny_reactivation_request:
+                        type: boolean
+                      invite_users:
+                        type: boolean
+                      view_invitations:
+                        type: boolean
+                      leave:
+                        type: boolean
+                      request_to_join:
+                        type: boolean
+                      view_join_requests:
+                        type: boolean
+                      accept_join_request:
+                        type: boolean
+                      deny_join_request:
+                        type: boolean
+                      request_to_link:
+                        type: boolean
+                      accept_link_request:
+                        type: boolean
+                      deny_link_request:
+                        type: boolean
+                      unlink:
+                        type: boolean
+                      view_members:
+                        type: boolean
+                      remove_member:
+                        type: boolean
+                      view_posts:
+                        type: boolean
+                      add_post:
+                        type: boolean
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  website:
+                    type: string
+                  type:
+                    type: string
+                  diseases:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/diseases/items'
+                  funding_source:
+                    type: string
+                  specialities:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/specialities/items'
+                  linked_organizations:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/linked_organizations/items'
+                  location:
+                    $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/location'
+                  community:
+                    type: object
+                    required:
+                      - entity_id
+                      - title
+                    properties:
+                      entity_id:
+                        type: string
+                      title:
+                        type: string
+                  creator:
+                    $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema/items'
+                  validity_period:
+                    $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/validity_period'
+                  verification_status:
+                    $ref: '#/paths/~1admin~1verification~1project~1%7BrequestId%7D/put/requestBody/content/application~1json/schema/properties/verification_status'
+                  verification_message:
+                    type: string
+                  linked_projects:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1projects/post/responses/201/content/application~1json/schema'
+                  linked_projects_members:
+                    $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema'
+                  actor_role:
+                    type: string
+                    enum:
+                      - Unrelated
+                      - Leader
+                      - Member
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/projects/requests:
+    get:
+      summary: View the user's requested projects list
+      parameters:
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.projects_requests.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: View the user's requested projects list
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total_count
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - project
+                        - creation_date
+                        - invite_type
+                      properties:
+                        project:
+                          $ref: '#/paths/~1social~1projects/post/responses/201/content/application~1json/schema'
+                        creation_date:
+                          type: string
+                          format: date-time
+                          example: '2020-02-25T08:41:10+00:00'
+                        invite_type:
+                          type: string
+                          enum:
+                            - Member
+                            - Lead
+                  total_count:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /social/projects/invitations:
+    get:
+      summary: View the user's invited as member projects list
+      parameters:
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.projects_invitations.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch a list of the user's invited as member projects list
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1projects~1requests/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /social/projects/involvement_counters:
+    get:
+      summary: Get counters for user projects social involvement
+      operationId: rest.social.projects_involvement_counters.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1profile~1connections_counters/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/projects/owner/invitations:
+    get:
+      summary: View the user's invited as owner projects list
+      parameters:
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.projects_invitations.index_owners
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch a list of the user's invited as owner projects list
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1projects~1requests/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/social/{userId}/projects':
+    get:
+      summary: View projects of specific user
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.user_projects.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1projects/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/project/{projectId}':
+    get:
+      summary: View project
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema:
+            type: string
+          description: Project ID
+      operationId: rest.social.projects.get
+      security:
+        - session: []
+        - {}
+      responses:
+        '200':
+          description: Successfully fetched a project
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1projects/post/responses/201/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    put:
+      summary: Edit project
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+      operationId: rest.social.projects.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - validity_period
+                - type
+                - diseases
+                - specialities
+                - location
+                - linked_organizations
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                validity_period:
+                  $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/validity_period'
+                website:
+                  type: string
+                type:
+                  type: string
+                diseases:
+                  type: array
+                  items:
+                    $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/diseases/items'
+                funding_source:
+                  type: string
+                specialities:
+                  type: array
+                  items:
+                    $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/specialities/items'
+                location:
+                  $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/location'
+                viewport:
+                  $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/viewport'
+                community_id:
+                  type: string
+                linked_projects:
+                  type: array
+                  items:
+                    type: string
+                linked_organizations:
+                  type: array
+                  items:
+                    $ref: '#/paths/~1social~1projects/post/requestBody/content/application~1json/schema/properties/linked_organizations/items'
+      responses:
+        '200':
+          description: Successfully edited a project
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1projects/post/responses/201/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    delete:
+      summary: Remove project
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+      operationId: rest.social.projects.delete
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully removed a project
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1logout/post/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/project/{projectId}/leaders':
+    get:
+      summary: Fetch all project leaders
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+      operationId: rest.social.project_leaders.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1users/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/project/{projectId}/members':
+    get:
+      summary: View members list
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.project_members.index
+      security:
+        - session: []
+        - {}
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - user_id
+                    - displayed_name
+                    - is_admin
+                    - deleted
+                  properties:
+                    user_id:
+                      type: string
+                    displayed_name:
+                      type: string
+                      description: individual alias or organization name
+                    is_admin:
+                      type: boolean
+                    deleted:
+                      type: boolean
+                    image_url:
+                      type: string
+                    chat:
+                      type: string
+                      example: CH704e34711c324838a584c0f6243e2701
+                      description: channel_external_id if already exists
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    post:
+      summary: 'Invite a user to the project, join the project, send request to join'
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+      operationId: rest.social.project_members.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+              properties:
+                user_id:
+                  type: string
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1logout/post/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/project/{projectId}/member/{userId}':
+    delete:
+      summary: 'Leave the project, remove a user from members'
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.social.project_members.delete
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1logout/post/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    put:
+      summary: User accept or reject invitation to become the project member
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.social.project_members.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - invitation_status
+              properties:
+                invitation_status:
+                  type: string
+                  enum:
+                    - Approved
+                    - Rejected
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1logout/post/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/project/{projectId}/participants/invitations':
+    get:
+      summary: View the project pending invited participants list
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.project_members.index_pending
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch a list of the project pending invited participants
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1community~1%7BcommunityId%7D~1requests/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/social/project/{projectId}/participants/requests':
+    get:
+      summary: View the project pending requested participants list
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.project_members.index_requests
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch a list of the project pending participant requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1community~1%7BcommunityId%7D~1requests/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/social/project/{projectId}/participants/involvement_counters':
+    get:
+      summary: View the project pending invitation and requests counters
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+      operationId: rest.social.project_members.involvement_counters
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1community~1%7BcommunityId%7D~1involvement_counters/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/social/project/{projectId}/participants/request/{userId}':
+    delete:
+      summary: Reject/remove a users request to join a project from requests list
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.social.project_requests.delete
+      responses:
+        '200':
+          description: Successfully remove a users request to join a project from requests list
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1logout/post/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/project/{projectId}/owners/invitations':
+    get:
+      summary: View the project invited and pending owners list
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.project_leaders.index_pending
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch a list of the project invited and pending owners
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1community~1%7BcommunityId%7D~1requests/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /social/user_groups/stats:
+    get:
+      summary: View stats on current user's social groups
+      operationId: rest.social.user_groups_stats.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - total_projects
+                  - total_communities
+                properties:
+                  total_projects:
+                    type: number
+                  total_communities:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /social/posts:
+    post:
+      summary: Create a new post
+      operationId: rest.social.posts.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - text
+              properties:
+                title:
+                  type: string
+                text:
+                  type: string
+                community_id:
+                  type: string
+                  format: uuid
+                project_id:
+                  type: string
+                  format: uuid
+                image_url:
+                  type: string
+                  format: uri
+      responses:
+        '201':
+          description: Successfully created a new post
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - entity_id
+                      - permissions
+                      - title
+                      - date
+                      - social_context
+                    properties:
+                      entity_id:
+                        type: string
+                        format: uuid
+                      permissions:
+                        type: object
+                        required:
+                          - view
+                          - remove
+                          - add_comment
+                          - update
+                          - view_comments
+                        properties:
+                          view:
+                            type: boolean
+                          remove:
+                            type: boolean
+                          add_comment:
+                            type: boolean
+                          update:
+                            type: boolean
+                          view_comments:
+                            type: boolean
+                      title:
+                        type: string
+                      date:
+                        type: string
+                        format: date
+                      social_context:
+                        type: object
+                        required:
+                          - entity_type
+                          - entity_id
+                          - entity_title
+                          - actor_role
+                        properties:
+                          entity_type:
+                            type: string
+                            enum:
+                              - Community
+                              - Project
+                          entity_id:
+                            type: string
+                            format: uuid
+                          entity_title:
+                            type: string
+                          actor_role:
+                            $ref: '#/paths/~1social~1projects/post/responses/201/content/application~1json/schema/properties/actor_role'
+                      image_url:
+                        type: string
+                        format: uri
+                  - type: object
+                    required:
+                      - creator
+                      - text
+                    properties:
+                      creator:
+                        $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema/items'
+                      text:
+                        type: string
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/post/{postId}':
+    get:
+      summary: View post
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          schema:
+            type: string
+          description: POST ID
+      operationId: rest.social.posts.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetched a post
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1posts/post/responses/201/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    put:
+      summary: Edit post
+      parameters:
+        - $ref: '#/paths/~1social~1post~1%7BpostId%7D/get/parameters/0'
+      operationId: rest.social.posts.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - text
+              properties:
+                title:
+                  type: string
+                text:
+                  type: string
+                community_id:
+                  type: string
+                  format: uuid
+                project_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Successfully edited a post
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1posts/post/responses/201/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    delete:
+      summary: Remove post
+      parameters:
+        - $ref: '#/paths/~1social~1post~1%7BpostId%7D/get/parameters/0'
+      operationId: rest.social.posts.delete
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully removed a post
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1auth~1logout/post/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/profile/{userId}/posts':
+    get:
+      summary: Fetch all posts by userId
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.profile_posts.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total_count
+                properties:
+                  items:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/paths/~1social~1posts/post/responses/201/content/application~1json/schema/allOf/0'
+                        - type: object
+                          required:
+                            - creator_id
+                          properties:
+                            creator_id:
+                              type: string
+                              format: uuid
+                  total_count:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/project/{projectId}/posts':
+    get:
+      summary: View posts list
+      parameters:
+        - $ref: '#/paths/~1social~1project~1%7BprojectId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.project_posts.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1profile~1%7BuserId%7D~1posts/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/community/{communityId}/posts':
+    get:
+      summary: View posts list
+      parameters:
+        - $ref: '#/paths/~1social~1community~1%7BcommunityId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.social.community_posts.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1social~1profile~1%7BuserId%7D~1posts/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/comment/{commentId}/reply':
+    post:
+      summary: Add comment reply to comment
+      parameters:
+        - $ref: '#/paths/~1comment~1%7BcommentId%7D/delete/parameters/0'
+      operationId: rest.comment.reply.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/paths/~1social~1post~1%7BpostId%7D~1comments/post/requestBody/content/application~1json/schema'
+                - type: object
+                  properties:
+                    replied_comment_id:
+                      type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - entity_id
+                      - creation_date
+                      - creator
+                      - text
+                      - permissions
+                    properties:
+                      entity_id:
+                        type: string
+                      creation_date:
+                        type: string
+                        format: date-time
+                        example: '2020-02-25T08:41:10+00:00'
+                      creator:
+                        $ref: '#/paths/~1profile~1%7BuserId%7D~1blocked/get/responses/200/content/application~1json/schema/items'
+                      text:
+                        type: string
+                      permissions:
+                        type: object
+                        required:
+                          - view
+                          - remove
+                          - reply
+                        properties:
+                          view:
+                            type: boolean
+                          remove:
+                            type: boolean
+                          reply:
+                            type: boolean
+                  - type: object
+                    properties:
+                      replied_comment_ref:
+                        type: object
+                        required:
+                          - creator_id
+                          - creator_name
+                          - quoted_text
+                          - is_creator_deleted
+                        properties:
+                          comment_id:
+                            type: string
+                          creator_id:
+                            type: string
+                          creator_name:
+                            type: string
+                          quoted_text:
+                            type: string
+                            minLength: 1
+                            maxLength: 2000
+                          is_creator_deleted:
+                            type: boolean
+        '400':
+          description: Bad Request.
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          description: The specified resource was not found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+    get:
+      summary: View the rely list by comments ID
+      parameters:
+        - $ref: '#/paths/~1comment~1%7BcommentId%7D/delete/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.comment.reply.index_paginable
+      security:
+        - session: []
+        - {}
+      responses:
+        '200':
+          description: Successfully fetch a list of the comment reply
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total_count
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1comment~1%7BcommentId%7D~1reply/post/responses/200/content/application~1json/schema'
+                  total_count:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/comment/{commentId}':
+    delete:
+      summary: Delete the comment
+      parameters:
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: string
+          description: Comment ID
+      operationId: rest.comments.delete
+      security:
+        - session: []
+      responses:
+        '204':
+          description: The comment was deleted successfully.
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          description: The comment was not found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+  '/social/post/{postId}/comments':
+    post:
+      summary: Add a comment
+      parameters:
+        - $ref: '#/paths/~1social~1post~1%7BpostId%7D/get/parameters/0'
+      operationId: rest.social.post_comments.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/paths/~1comment~1%7BcommentId%7D~1reply/post/responses/200/content/application~1json/schema/allOf/0'
+                  - type: object
+                    required:
+                      - replies_list
+                    properties:
+                      replies_list:
+                        $ref: '#/paths/~1comment~1%7BcommentId%7D~1reply/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/social/post/{postId}/comments_list':
+    get:
+      summary: View comments list
+      parameters:
+        - $ref: '#/paths/~1social~1post~1%7BpostId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+        - name: replyLimit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+          description: The numbers of comment reply items to return
+      operationId: rest.social.post_comments.index_list
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total_count
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1post~1%7BpostId%7D~1comments/post/responses/201/content/application~1json/schema'
+                  total_count:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /admin/verification/projects:
+    get:
+      summary: Fetch all project verification requests
+      operationId: rest.admin.projects.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1admin~1verification~1project~1%7BrequestId%7D/put/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/admin/verification/project/{requestId}':
+    post:
+      summary: Take a project verification request
+      operationId: rest.admin.projects.post
+      security:
+        - session: []
+      parameters:
+        - $ref: '#/paths/~1admin~1verification~1project~1%7BrequestId%7D/put/parameters/0'
+      responses:
+        '201':
+          description: Successfully taken a project verification request
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1admin~1verification~1project~1%7BrequestId%7D/put/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    patch:
+      summary: Drop a project verification request
+      parameters:
+        - $ref: '#/paths/~1admin~1verification~1project~1%7BrequestId%7D/put/parameters/0'
+      operationId: rest.admin.projects.patch
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully drop a project verification request
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1admin~1verification~1project~1%7BrequestId%7D/put/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    put:
+      summary: Update project verification status
+      parameters:
+        - in: path
+          name: requestId
+          required: true
+          schema:
+            type: string
+          description: Request Id
+      operationId: rest.admin.projects.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - verification_status
+              properties:
+                verification_status:
+                  type: string
+                  enum:
+                    - Pending
+                    - Verified
+                    - Rejected
+                verification_message:
+                  type: string
+      responses:
+        '200':
+          description: Successfully status of the project updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - entity_id
+                  - created_date
+                  - request_state
+                  - project
+                properties:
+                  entity_id:
+                    type: string
+                  created_date:
+                    type: string
+                    format: date-time
+                  request_state:
+                    type: string
+                    enum:
+                      - New
+                      - Assigned
+                      - Responded
+                  project:
+                    type: object
+                    required:
+                      - entity_id
+                      - title
+                      - request_from
+                      - verification_status
+                    properties:
+                      entity_id:
+                        type: string
+                        format: uuid
+                      title:
+                        type: string
+                      request_from:
+                        $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema/items'
+                      verification_status:
+                        $ref: '#/paths/~1admin~1verification~1project~1%7BrequestId%7D/put/requestBody/content/application~1json/schema/properties/verification_status'
+                      verification_message:
+                        type: string
+                  assigned_to:
+                    type: array
+                    items:
+                      $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema/items'
+                  responded_date:
+                    type: string
+                    format: date-time
+                  responder:
+                    $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema/items'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /files/bulk_delete:
+    delete:
+      summary: Remove multiple files or folders by entity descriptor id
+      parameters:
+        - name: file_descriptor_ids
+          in: query
+          description: Multiple file descriptor ids
+          schema:
+            type: array
+            items:
+              type: string
+        - name: folder_descriptor_ids
+          in: query
+          description: Multiple folder descriptor ids
+          schema:
+            type: array
+            items:
+              type: string
+      operationId: rest.file_storage.bulk_delete.delete
+      security:
+        - session: []
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /files/generate:
+    post:
+      summary: Create S3 file link
+      operationId: rest.file_storage.generate_file_url.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - content_type
+                - size
+                - is_public
+              properties:
+                name:
+                  type: string
+                content_type:
+                  type: string
+                size:
+                  type: number
+                is_public:
+                  type: boolean
+                  default: false
+                  description: 'Option to create read:public files from the start.'
+                folder_descriptor_id:
+                  type: string
+                  description: 'Optional, a reference to a folder. If missing, stored in the root folder.'
+              example:
+                name: MyFile.pdf
+                content_type: application/pdf
+      responses:
+        '201':
+          description: Successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - url
+                  - fields
+                  - file_descriptor_id
+                properties:
+                  file_descriptor_id:
+                    type: string
+                    description: Unique identifier of the file being uploaded.
+                  url:
+                    type: string
+                    example: 'https://bucket_name.s3.amazonaws.com/'
+                  fields:
+                    type: object
+                  public_url:
+                    type: string
+                    description: It is optional. Present only for files with public=true attribute
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  '/files/{file_descriptor_id}/download':
+    post:
+      summary: Generate file download url
+      operationId: rest.file_storage.generate_download_file_url.post
+      security:
+        - session: []
+      parameters:
+        - $ref: '#/paths/~1files~1%7Bfile_descriptor_id%7D/put/parameters/0'
+      responses:
+        '201':
+          description: Successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - presigned_url
+                properties:
+                  presigned_url:
+                    type: string
+                    example: 'https://bucket_name.s3.amazonaws.com/.....'
+                    description: Unique temporary url for download.
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+  /files/activity_log:
+    get:
+      summary: View user files activity log
+      parameters:
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+        - in: query
+          name: sorting
+          schema:
+            type: string
+            enum:
+              - name_asc
+              - name_desc
+              - date_asc
+              - date_desc
+          description: 'Sorting order param, default is name_asc'
+      operationId: rest.file_storage.files_activity_log.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total_count
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - event_id
+                        - event_datetime
+                        - event_type
+                        - event_payload
+                      properties:
+                        event_id:
+                          type: string
+                        event_datetime:
+                          type: string
+                          format: date-time
+                        event_type:
+                          type: string
+                          enum:
+                            - FilesUploadedEvent
+                            - FileShared
+                            - FileDownloaded
+                            - FileRemoved
+                        event_payload:
+                          type: object
+                          required:
+                            - file_view
+                            - event_body
+                          properties:
+                            file_view:
+                              type: object
+                              required:
+                                - entity_id
+                                - entity_name
+                                - content_type
+                                - size
+                              properties:
+                                entity_id:
+                                  type: string
+                                entity_name:
+                                  type: string
+                                content_type:
+                                  type: string
+                                size:
+                                  type: number
+                            event_body:
+                              anyOf:
+                                - type: object
+                                  required:
+                                    - actor_account_id
+                                  properties:
+                                    actor_account_id:
+                                      type: string
+                                - type: object
+                                  required:
+                                    - actor_account_id
+                                    - security_diff
+                                  properties:
+                                    actor_account_id:
+                                      type: string
+                                    security_diff:
+                                      type: object
+                                      required:
+                                        - old_version
+                                        - new_version
+                                      properties:
+                                        old_version:
+                                          type: array
+                                          items:
+                                            $ref: '#/paths/~1folders/get/responses/200/content/application~1json/schema/items/properties/security/items'
+                                        new_version:
+                                          type: array
+                                          items:
+                                            $ref: '#/paths/~1folders/get/responses/200/content/application~1json/schema/items/properties/security/items'
+                  total_count:
+                    type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/files/{file_descriptor_id}/activity_log':
+    get:
+      summary: View file activity log
+      parameters:
+        - $ref: '#/paths/~1files~1%7Bfile_descriptor_id%7D/put/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+        - $ref: '#/paths/~1files~1activity_log/get/parameters/2'
+      operationId: rest.file_storage.file_activity_log.index
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/paths/~1files~1activity_log/get/responses/200/content/application~1json/schema'
+                  - type: object
+                    required:
+                      - total_download_count
+                    properties:
+                      total_download_count:
+                        type: number
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/files/{file_descriptor_id}':
+    delete:
+      summary: Remove file by file descriptor id
+      parameters:
+        - $ref: '#/paths/~1files~1%7Bfile_descriptor_id%7D/put/parameters/0'
+      operationId: rest.file_storage.files.delete
+      security:
+        - session: []
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+    put:
+      summary: Move and rename file by file descriptor id
+      parameters:
+        - in: path
+          name: file_descriptor_id
+          required: true
+          schema:
+            type: string
+          description: FileDescriptorID
+      operationId: rest.file_storage.files.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: request object for update FileDescriptor of FolderDescriptor
+              required:
+                - new_name
+              properties:
+                new_name:
+                  type: string
+                destination_folder_descriptor_id:
+                  type: string
+              example:
+                name: images
+                destination_folder_descriptor_id: ‘sdfsdfkjwkjhfdkhhasdfbkjsdf’
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/folders/{folder_descriptor_id}/':
+    get:
+      summary: View the folders and files list
+      parameters:
+        - in: path
+          name: folder_descriptor_id
+          required: true
+          schema:
+            type: string
+          description: FolderDescriptorID
+      operationId: rest.file_storage.folder.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch a list of files and foldres
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1folders/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+    delete:
+      summary: Remove folder by folder descriptor id
+      parameters:
+        - $ref: '#/paths/~1folders~1%7Bfolder_descriptor_id%7D~1/get/parameters/0'
+      operationId: rest.file_storage.folder.delete
+      security:
+        - session: []
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+    put:
+      summary: Update folder by folder descriptor id
+      parameters:
+        - $ref: '#/paths/~1folders~1%7Bfolder_descriptor_id%7D~1/get/parameters/0'
+      operationId: rest.file_storage.folder.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/paths/~1files~1%7Bfile_descriptor_id%7D/put/requestBody/content/application~1json/schema'
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /folders:
+    post:
+      summary: Create folder
+      operationId: rest.file_storage.folder.post
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                folder_descriptor_id:
+                  type: string
+      responses:
+        '201':
+          description: Successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - entity_id
+                  - name
+                  - creator_account_id
+                  - created
+                  - modified
+                  - modified_by
+                  - readonly
+                properties:
+                  entity_id:
+                    type: string
+                  name:
+                    type: string
+                  creator_account_id:
+                    type: string
+                  created:
+                    type: string
+                    format: date
+                  modified:
+                    $ref: '#/paths/~1folders/post/responses/201/content/application~1json/schema/properties/created'
+                  modified_by:
+                    type: string
+                  readonly:
+                    type: boolean
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+    get:
+      operationId: rest.file_storage.folder.get_root
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch a list of files and foldres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - entity_kind
+                    - entity
+                    - security
+                  properties:
+                    entity_kind:
+                      type: string
+                      enum:
+                        - folder_descriptor
+                        - file_descriptor
+                    entity:
+                      type: object
+                      oneOf:
+                        - $ref: '#/paths/~1files~1%7Bfile_descriptor_id%7D~1shareable_link/put/responses/200/content/application~1json/schema'
+                        - $ref: '#/paths/~1folders/post/responses/201/content/application~1json/schema'
+                    security:
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - user_id
+                          - permission
+                        properties:
+                          user_id:
+                            type: string
+                          permission:
+                            type: string
+                            enum:
+                              - owner
+                              - reader
+                              - writer
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          description: The specified resource was not found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+  '/files/{file_descriptor_id}/share':
+    put:
+      summary: Share file
+      parameters:
+        - $ref: '#/paths/~1files~1%7Bfile_descriptor_id%7D/put/parameters/0'
+      operationId: rest.file_storage.file_sharing.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - security_permission
+              properties:
+                security_permission:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - user_id
+                      - permission
+                    properties:
+                      user_id:
+                        type: string
+                      permission:
+                        type: string
+                        enum:
+                          - owner
+                          - writer
+                          - reader
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/folders/{folder_descriptor_id}/share':
+    put:
+      summary: Share folder
+      parameters:
+        - $ref: '#/paths/~1folders~1%7Bfolder_descriptor_id%7D~1/get/parameters/0'
+      operationId: rest.file_storage.folder_sharing.put
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/paths/~1files~1%7Bfile_descriptor_id%7D~1share/put/requestBody/content/application~1json/schema'
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/files/{file_descriptor_id}/shareable_link':
+    put:
+      summary: Generate shareable link
+      parameters:
+        - $ref: '#/paths/~1files~1%7Bfile_descriptor_id%7D/put/parameters/0'
+      operationId: rest.file_storage.file_shareable_link.put
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch a File descriptor
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - entity_id
+                  - name
+                  - creator_account_id
+                  - content_type
+                  - size
+                  - state
+                  - created
+                  - is_public
+                  - modified
+                properties:
+                  entity_id:
+                    type: string
+                  name:
+                    type: string
+                  creator_account_id:
+                    type: string
+                  content_type:
+                    type: string
+                  size:
+                    type: number
+                  state:
+                    type: string
+                    enum:
+                      - pending
+                      - valid
+                      - deleted
+                      - blocked
+                  public_url:
+                    type: string
+                  created:
+                    $ref: '#/paths/~1folders/post/responses/201/content/application~1json/schema/properties/created'
+                  is_public:
+                    type: boolean
+                  modified:
+                    $ref: '#/paths/~1folders/post/responses/201/content/application~1json/schema/properties/created'
+                  age_in_folder:
+                    type: string
+                    format: date-time
+                    example: '2020-02-25T08:41:10+00:00'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+    delete:
+      summary: Remove file shareable link
+      parameters:
+        - $ref: '#/paths/~1files~1%7Bfile_descriptor_id%7D/put/parameters/0'
+      operationId: rest.file_storage.file_shareable_link.delete
+      security:
+        - session: []
+      responses:
+        '204':
+          $ref: '#/paths/~1feedback/post/responses/204'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /files/size:
+    get:
+      operationId: rest.file_storage.size.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch a file storage size
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - total_size
+                  - used_size
+                  - loading_size
+                  - shared_size
+                properties:
+                  total_size:
+                    type: integer
+                    example: 43246546
+                    description: 'Total size file storage for user in system, in bytes.'
+                  used_size:
+                    type: integer
+                    example: 43246546
+                    description: 'Size that already in use, in bytes.'
+                  loading_size:
+                    type: integer
+                    example: 43246546
+                    description: 'Size that still in loading, in bytes. FileDescriptor State is Pending - hasn''t loaded yet s'
+                  shared_size:
+                    type: integer
+                    example: 43246546
+                    description: 'Size of files that shared to me, in bytes.'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /folders/shared:
+    get:
+      operationId: rest.file_storage.folder_shared.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successfully fetch a list of files and foldres that shared to me
+          content:
+            application/json:
+              schema:
+                $ref: '#/paths/~1folders/get/responses/200/content/application~1json/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/profile/{userId}/block':
+    post:
+      summary: Add profile to the blocked list
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.profile.block.post
+      security:
+        - session: []
+      responses:
+        '201':
+          description: The request was success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+    delete:
+      summary: Delete profile from the block list
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+      operationId: rest.profile.block.delete
+      security:
+        - session: []
+      responses:
+        '204':
+          $ref: '#/paths/~1profile~1%7BuserId%7D~1block/post/responses/201'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  '/profile/{userId}/blocked':
+    get:
+      summary: Fetches data of all profile that user blocked
+      parameters:
+        - $ref: '#/paths/~1user~1%7BuserId%7D/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/0'
+        - $ref: '#/paths/~1social~1projects/get/parameters/1'
+      operationId: rest.profile.block.get
+      security:
+        - session: []
+      responses:
+        '200':
+          description: Successful fetch
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/paths/~1social~1project~1%7BprojectId%7D~1members/get/responses/200/content/application~1json/schema/items'
+                    - type: object
+                      required:
+                        - user_roles
+                        - reaction
+                      properties:
+                        user_roles:
+                          type: array
+                          items:
+                            type: string
+                            enum:
+                              - researcher
+                              - patient
+                              - doctor
+                              - med_staff
+                              - organization
+                        reaction:
+                          type: object
+                          required:
+                            - connection_status
+                          properties:
+                            connection_status:
+                              type: string
+                              enum:
+                                - Pending
+                                - Verified
+                                - None
+                        counsel_role:
+                          $ref: '#/paths/~1users~1counsel/get/parameters/0/schema'
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /feedback:
+    post:
+      summary: Contact site owners
+      operationId: rest.social.feedback.post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - subject
+                - message
+              properties:
+                username:
+                  type: string
+                  example: unknown_user
+                full_name:
+                  type: string
+                  example: Petrov Pavel
+                email:
+                  type: string
+                  format: email
+                  minimum: 6
+                  maximum: 254
+                  example: test@example.com
+                subject:
+                  type: string
+                  example: Your site is great
+                message:
+                  type: string
+                  example: You doing cool things
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /statistics:
+    get:
+      operationId: rest.map.statistics.get
+      security:
+        - session: []
+        - {}
+      parameters:
+        - in: query
+          name: params
+          description: Stringified json data of search request
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully fetch overall statistics for the map depend on search filters
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - statistic_type
+                  - statistic_counters
+                properties:
+                  statistic_type:
+                    type: string
+                    enum:
+                      - Communities
+                      - Projects
+                      - Individuals
+                      - Organizations
+                  statistic_counters:
+                    anyOf:
+                      - type: object
+                        required:
+                          - communities_count
+                          - community_leads_count
+                          - community_participants_count
+                        properties:
+                          communities_count:
+                            type: number
+                            example: 123
+                          community_leads_count:
+                            type: number
+                            example: 123
+                          community_participants_count:
+                            type: number
+                            example: 123
+                      - type: object
+                        required:
+                          - projects_count
+                          - project_leads_count
+                          - project_participants_count
+                        properties:
+                          projects_count:
+                            type: number
+                            example: 123
+                          project_leads_count:
+                            type: number
+                            example: 123
+                          project_participants_count:
+                            type: number
+                            example: 123
+                      - type: object
+                        required:
+                          - total_individuals_count
+                          - patients_count
+                          - doctors_count
+                          - medstaff_count
+                          - researchers_count
+                        properties:
+                          total_individuals_count:
+                            type: number
+                            example: 123
+                          patients_count:
+                            type: number
+                            example: 123
+                          doctors_count:
+                            type: number
+                            example: 123
+                          medstaff_count:
+                            type: number
+                            example: 123
+                          researchers_count:
+                            type: number
+                            example: 123
+                      - type: object
+                        required:
+                          - total_organizations_count
+                          - foundation_organizations_count
+                          - institute_organizations_count
+                          - hospital_organizations_count
+                          - research_organizations_count
+                        properties:
+                          total_organizations_count:
+                            type: number
+                            example: 123
+                          foundation_organizations_count:
+                            type: number
+                            example: 123
+                          institute_organizations_count:
+                            type: number
+                            example: 123
+                          hospital_organizations_count:
+                            type: number
+                            example: 123
+                          research_organizations_count:
+                            type: number
+                            example: 123
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /map/layer/covid_map:
+    get:
+      operationId: rest.map.covid.get
+      security:
+        - session: []
+        - {}
+      parameters:
+        - in: query
+          name: params
+          description: Stringified json data of search request
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully fetched covid info
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - updated_at
+                  - data
+                  - total_stats
+                properties:
+                  updated_at:
+                    type: string
+                    format: date-time
+                    example: '2020-02-25T08:41:10+00:00'
+                  data:
+                    type: string
+                    description: serialized GeoJSON FeatureCollection
+                  total_stats:
+                    type: object
+                    required:
+                      - cases
+                      - deaths
+                      - vaccinations
+                    properties:
+                      cases:
+                        type: integer
+                        example: 421874292
+                      deaths:
+                        type: integer
+                        example: 5891015
+                      vaccinations:
+                        type: integer
+                        example: 10500123456
+        '403':
+          $ref: '#/paths/~1users/get/responses/403'
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+  /map/layer/covid_vaccinations_map:
+    get:
+      operationId: rest.map.covid_vaccinations.get
+      security:
+        - session: []
+        - {}
+      parameters:
+        - in: query
+          name: params
+          description: Stringified json data of search request
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully fetched covid vaccinations info
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - updated_at
+                  - data
+                  - total_stats
+                properties:
+                  updated_at:
+                    type: string
+                    format: date-time
+                    example: '2020-02-25T08:41:10+00:00'
+                  data:
+                    type: string
+                    description: serialized GeoJSON FeatureCollection
+                  total_stats:
+                    type: object
+                    required:
+                      - vaccinations_administered
+                      - partially_vaccinated
+                      - fully_vaccinated
+                    properties:
+                      vaccinations_administered:
+                        type: integer
+                        example: 10650850331
+                      partially_vaccinated:
+                        type: integer
+                        example: 4790958691
+                      fully_vaccinated:
+                        type: integer
+                        example: 4284805147
+        '404':
+          $ref: '#/paths/~1folders/get/responses/404'
+        default:
+          $ref: '#/paths/~1folders/get/responses/default'
+components:
+  securitySchemes:
+    session:
+      type: http
+      scheme: bearer
+      bearerFormat: com.jul.project
+      x-bearerInfoFunc: application.decode_session_token

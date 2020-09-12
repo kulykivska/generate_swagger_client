@@ -1,0 +1,38 @@
+get:
+  summary: View all communities for current user
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+  operationId: rest.social.communities.index
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/community.yaml#/communities'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+post:
+  summary: Create a new community
+  operationId: rest.social.communities.post
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/community.yaml#/create_community_request'
+  responses:
+    201:
+      description: Successfully created a new community
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/community.yaml#/community'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

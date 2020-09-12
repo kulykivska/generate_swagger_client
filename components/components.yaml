@@ -1,0 +1,221 @@
+components:
+  #-------------------------------
+  # Reusable schemas (data models)
+  #-------------------------------
+  schemas:
+    paginatable_list_of_comments:
+      type: object
+      required:
+        - items
+        - total_count
+      properties:
+        items:
+          $ref: '#/components/schemas/list_of_root_comments'
+        total_count:
+          type: number
+    add_feedback_request:
+      type: object
+      required:
+        - email
+        - subject
+        - message
+      properties:
+        username:
+          type: string
+          example: unknown_user
+        full_name:
+          type: string
+          example: Petrov Pavel
+        email:
+          type: string
+          format: email
+          minimum: 6
+          maximum: 254
+          example: test@example.com
+        subject:
+          type: string
+          example: Your site is great
+        message:
+          type: string
+          example: You doing cool things
+    reaction:
+      type: object
+      required:
+        - connection_status
+      properties:
+        connection_status:
+          $ref: './variables.yaml#/components/schemas/connection_status'
+  parameters:
+    offset_param:
+      name: offset
+      in: query
+      description: The number of items to skip before starting to collect the result set
+      schema:
+        type: integer
+        minimum: 0
+    limit_param:
+      in: query
+      name: limit
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+      description: The numbers of items to return
+    sorting_param:
+      in: query
+      name: sorting
+      schema:
+        type: string
+        enum: [name_asc, name_desc, date_asc, date_desc]
+      description: Sorting order param, default is name_asc
+    file_descriptor_ids:
+      name: file_descriptor_ids
+      in: query
+      description: Multiple file descriptor ids
+      schema:
+        type: array
+        items:
+          type: string
+    folder_descriptor_ids:
+      name: folder_descriptor_ids
+      in: query
+      description: Multiple folder descriptor ids
+      schema:
+        type: array
+        items:
+          type: string
+    user_id:
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: string
+      description: User ID
+    community_id:
+      in: path
+      name: communityId
+      required: true
+      schema:
+        type: string
+      description: Community ID
+    project_id:
+      in: path
+      name: projectId
+      required: true
+      schema:
+        type: string
+      description: Project ID
+    conversation_id:
+      in: path
+      name: conversationId
+      required: true
+      schema:
+        type: string
+      description: Conversation ID
+    post_id:
+      in: path
+      name: postId
+      required: true
+      schema:
+        type: string
+      description: POST ID
+    comment_id:
+      in: path
+      name: commentId
+      required: true
+      schema:
+        type: string
+      description: Comment ID
+    file_descriptor_id:
+      in: path
+      name: file_descriptor_id
+      required: true
+      schema:
+        type: string
+      description: FileDescriptorID
+    folder_descriptor_id:
+      in: path
+      name: folder_descriptor_id
+      required: true
+      schema:
+        type: string
+      description: FolderDescriptorID
+    request_id:
+      in: path
+      name: requestId
+      required: true
+      schema:
+        type: string
+      description: Request Id
+  requestBodies:
+    resetPasswordBody:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          minimum: 6
+          maximum: 254
+    resetPasswordChangeBody:
+      type: object
+      required:
+        - password
+        - token
+      properties:
+        password:
+          $ref: './variables.yaml#/components/schemas/password'
+        token:
+          type: string
+          example: slkjsdflrjlsjflwr
+    validateResetPasswordTokenBody:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+  responses:
+    200FetchArray:
+      description: Successful fetch
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
+    404NotFound:
+      description: The specified resource was not found.
+    SimpleSuccessResponse:
+      description: The request was success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+    EmptyResponse:
+      description: The resource was deleted successfully.
+    ClientError:
+      description: Basic client error
+      content:
+        application/json:
+          schema:
+            $ref: '../common/client_error_response.yaml'
+    PermissionError:
+      description: Security error
+      content:
+        application/json:
+          schema:
+            $ref: '../common/permission_error_response.yaml'
+    UnexpectedError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            type: object
+    UnauthorizedError:
+      description: Access token is missing or invalid

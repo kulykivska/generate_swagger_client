@@ -1,0 +1,14 @@
+get:
+  summary: Returns data of current's profile individual messaging channel for system notifications
+  operationId: rest.social.profile_messaging.notify_channel.get
+  security:
+    - session: []
+  responses:
+    200:
+      description: Succesfull fetching of profile's individual notifications channel data
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/messaging_channel.yaml#/messaging_channel_basic'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

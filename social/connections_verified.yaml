@@ -1,0 +1,18 @@
+get:
+  summary: Fetching all verified connections for current user
+  operationId: rest.social.profile_connections.index_verified
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+    - $ref: '../components/components.yaml#/components/parameters/sorting_param'
+  security:
+    - session: []
+  responses:
+    200:
+      description: Connection list received
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/connections.yaml#/connections'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

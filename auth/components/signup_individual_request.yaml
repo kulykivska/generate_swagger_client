@@ -1,0 +1,24 @@
+type: object
+required:
+  - account
+  - individual
+properties:
+  account:
+    type: object
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: string
+      password:
+        $ref: '../../components/variables.yaml#/components/schemas/password'
+  individual:
+    type: object
+    required:
+      - alias
+    properties:
+      alias:
+        type: string
+  timezone:
+    type: string

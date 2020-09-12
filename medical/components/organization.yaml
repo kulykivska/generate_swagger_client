@@ -1,0 +1,8 @@
+type: object
+required:
+  - attributes
+properties:
+  attributes:
+    type: array
+    items:
+      $ref: '../../attribute/components/attribute_value.yaml'

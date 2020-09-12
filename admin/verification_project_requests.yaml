@@ -1,0 +1,14 @@
+get:
+  summary: Fetch all project verification requests
+  operationId: rest.admin.projects.index
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../admin/components/verification_project_request.yaml#/project_requests'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

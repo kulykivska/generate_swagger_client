@@ -1,0 +1,31 @@
+get:
+  summary: Fetches metadata of the attributes associated with organization user
+  parameters:
+    - in: path
+      name: query
+      required: true
+      schema:
+        type: string
+      description: Query string
+    - in: path
+      name: category
+      required: true
+      schema:
+        type: string
+      description: Category
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+  operationId: rest.dummy.get
+  responses:
+    200:
+      description: Successful fetch
+      content:
+        application/json:
+          schema:
+          type: object
+          required:
+            - items
+          properties:
+            items:
+              type: array
+              items: {}

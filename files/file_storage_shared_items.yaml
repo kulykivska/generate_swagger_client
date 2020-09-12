@@ -1,0 +1,17 @@
+get:
+  operationId: rest.file_storage.folder_shared.get
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully fetch a list of files and foldres that shared to me
+      content:
+        application/json:
+          schema:
+            $ref: '../files/components/components.yaml#/folders_response'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

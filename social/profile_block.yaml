@@ -1,0 +1,33 @@
+post:
+  summary: Add profile to the blocked list
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.profile.block.post
+  security:
+    - session: []
+  responses:
+    201:
+      $ref: '../components/components.yaml#/components/responses/SimpleSuccessResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'
+
+delete:
+  summary: Delete profile from the block list
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.profile.block.delete
+  security:
+    - session: []
+  responses:
+    204:
+      $ref: '../components/components.yaml#/components/responses/SimpleSuccessResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

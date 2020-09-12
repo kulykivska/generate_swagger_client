@@ -1,0 +1,33 @@
+messaging_access_token:
+  type: object
+  required:
+    - service_name
+    - access_token
+  properties:
+    service_name:
+      type: string
+      description: Name that identifies particular messaging platform in use
+      example: twilio
+    access_token:
+      type: string
+      description: Access token to propagate to messaging platform's SDK (usually, a JWT token)
+
+messaging_channel_basic:
+  type: object
+  required:
+    - service_name
+    - channel_external_id
+    - readonly
+  properties:
+    service_name:
+      type: string
+      description: Name that identifies particular messaging platform in use
+      example: twilio
+    channel_external_id:
+      type: string
+      description: Identity of the channel in external messaging platform, is required for client SDKs
+      example: 'CH0d521c798f004fbf874d6fabfbd0df84'
+    readonly:
+      type: boolean
+      description: True value indicates if current user has permission to send the messages to this channel
+      example: true

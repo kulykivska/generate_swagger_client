@@ -1,0 +1,33 @@
+get:
+  summary: Suggestion for autocomplete request in response
+  operationId: rest.search.suggest.get
+  parameters:
+    - in: query
+      name: q
+      required: true
+      description: Query.
+      schema:
+        type: string
+    - in: path
+      name: attributeName
+      required: true
+      description: Name of the attribute.
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Successful fetch
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            type: object

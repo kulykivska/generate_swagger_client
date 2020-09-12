@@ -1,0 +1,16 @@
+type: object
+required:
+  - attributes
+  - diseases
+  - organization_name
+properties:
+  attributes:
+    type: array
+    items:
+      $ref: '../../attribute/components/attribute_value.yaml'
+  diseases:
+    type: array
+    items:
+      type: string
+  organization_name:
+    type: string

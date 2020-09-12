@@ -1,0 +1,16 @@
+get:
+  summary: Fetch all project leaders
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/project_id'
+  operationId: rest.social.project_leaders.index
+  security:
+    - session: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/profile.yaml#/list_of_basic_users'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

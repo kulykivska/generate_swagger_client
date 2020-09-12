@@ -1,0 +1,10 @@
+user_social_groups_stats:
+  type: object
+  required:
+    - total_projects
+    - total_communities
+  properties:
+    total_projects:
+      type: number
+    total_communities:
+      type: number

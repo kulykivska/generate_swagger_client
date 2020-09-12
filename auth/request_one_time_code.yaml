@@ -1,0 +1,15 @@
+post:
+  summary: Request one time code
+  operationId: rest.auth.request_one_time_code.post
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../auth/components/phone_number_request.yaml'
+  security:
+    - session: []
+  responses:
+    201:
+      description: Successfully requested
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'

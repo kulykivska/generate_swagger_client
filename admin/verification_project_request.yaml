@@ -1,0 +1,56 @@
+post:
+  summary: Take a project verification request
+  operationId: rest.admin.projects.post
+  security:
+    - session: []
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/request_id'
+  responses:
+    201:
+      description: Successfully taken a project verification request
+      content:
+        application/json:
+          schema:
+            $ref: '../admin/components/verification_project_request.yaml#/project_request'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+patch:
+  summary: Drop a project verification request
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/request_id'
+  operationId: rest.admin.projects.patch
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully drop a project verification request
+      content:
+        application/json:
+          schema:
+            $ref: '../admin/components/verification_project_request.yaml#/project_request'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+put:
+  summary: Update project verification status
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/request_id'
+  operationId: rest.admin.projects.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../admin/components/verify_project_request.yaml#/verification_project_request'
+  responses:
+    200:
+      description: Successfully status of the project updated
+      content:
+        application/json:
+          schema:
+            $ref: '../admin/components/verification_project_request.yaml#/project_request'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

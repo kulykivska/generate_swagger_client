@@ -1,0 +1,19 @@
+put:
+  summary: Verify email
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.auth.verify_email.put
+  security:
+    - session: []
+    - {}
+  responses:
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    '404':
+      description: The specified resource was not found.
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            type: object

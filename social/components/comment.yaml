@@ -1,0 +1,116 @@
+comment_common:
+  type: object
+  required:
+    - entity_id
+    - creation_date
+    - creator
+    - text
+    - permissions
+  properties:
+    entity_id:
+      type: string
+    creation_date:
+      type: string
+      format: date-time
+      example: '2020-02-25T08:41:10+00:00'
+    creator:
+      $ref: './profile.yaml#/user_extended'
+    text:
+      type: string
+    permissions:
+      $ref: '#/comment_permissions'
+
+root_comment:
+  allOf:
+    - $ref: '#/comment_common'
+    - type: object
+      required:
+        - replies_list
+      properties:
+        replies_list:
+          $ref: '#/list_of_comment_replies'
+
+reply_comment:
+  allOf:
+    - $ref: '#/comment_common'
+    - type: object
+      properties:
+        replied_comment_ref:
+          $ref: '#/replied_comment_reference'
+
+list_of_root_comments:
+  type: object
+  required:
+    - items
+    - total_count
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/root_comment'
+    total_count:
+      type: number
+
+list_of_comment_replies:
+  type: object
+  required:
+    - items
+    - total_count
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/reply_comment'
+    total_count:
+      type: number
+
+create_comment_request:
+  type: object
+  required:
+    - text
+  properties:
+    text:
+      type: string
+      minLength: 1
+      maxLength: 2000
+reply_comment_request:
+  allOf:
+    - $ref: '#/create_comment_request'
+    - type: object
+      properties:
+        replied_comment_id:
+          type: string
+replied_comment_reference:
+  type: object
+  required:
+    - creator_id
+    - creator_name
+    - quoted_text
+    - is_creator_deleted
+  properties:
+    comment_id:
+      type: string
+    creator_id:
+      type: string
+    creator_name:
+       type: string
+    quoted_text:
+      type: string
+      minLength: 1
+      maxLength: 2000
+    is_creator_deleted:
+      type: boolean
+
+comment_permissions:
+  type: object
+  required:
+    - view
+    - remove
+    - reply
+  properties:
+    view:
+      type: boolean
+    remove:
+      type: boolean
+    reply:
+      type: boolean

@@ -1,0 +1,23 @@
+get:
+  summary: Fetching a foreign user's connection requests (Admin only)
+  operationId: rest.social.profile_connections.index_foreign_verified
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+    - $ref: '../components/components.yaml#/components/parameters/offset_param'
+    - $ref: '../components/components.yaml#/components/parameters/limit_param'
+    - $ref: '../components/components.yaml#/components/parameters/sorting_param'
+  security:
+    - session: []
+  responses:
+    200:
+      description: User sent verified connection requests sent
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/connections.yaml#/connections'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

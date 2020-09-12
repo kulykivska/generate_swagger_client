@@ -1,0 +1,30 @@
+delete:
+  summary: Remove connection by account id
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.social.profile_connections.delete
+  security:
+    - session: []
+  responses:
+    200:
+      description: Connection link has been dropped
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+put:
+  summary: Accept or decline connection by account id
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/user_id'
+  operationId: rest.social.profile_connections.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/profile.yaml#/connection_request_status'
+  responses:
+    200:
+      description: Connection link has been accepted
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

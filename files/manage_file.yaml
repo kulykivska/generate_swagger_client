@@ -1,0 +1,40 @@
+delete:
+  summary: Remove file by file descriptor id
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/file_descriptor_id'
+  operationId: rest.file_storage.files.delete
+  security:
+    - session: []
+  responses:
+    204:
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'
+
+
+put:
+  summary: Move and rename file by file descriptor id
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/file_descriptor_id'
+  operationId: rest.file_storage.files.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../files/components/file.yaml#/update_file_storage_item_request'
+  responses:
+    204:
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

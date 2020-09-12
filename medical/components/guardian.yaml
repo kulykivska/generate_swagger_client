@@ -1,0 +1,10 @@
+type: object
+properties:
+  primary_guardianships:
+    type: array
+    items:
+      $ref: './guardianship.yaml'
+  non_primary_guardianships:
+    type: array
+    items:
+      $ref: './guardianship.yaml'

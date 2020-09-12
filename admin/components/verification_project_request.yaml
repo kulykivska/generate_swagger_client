@@ -1,0 +1,57 @@
+project_request:
+  type: object
+  required:
+    - entity_id
+    - created_date
+    - request_state
+    - project
+  properties:
+    entity_id:
+      type: string
+    created_date:
+      type: string
+      format: date-time
+    request_state:
+      type: string
+      enum: [New, Assigned, Responded]
+    project:
+      $ref: '#/project_for_verification'
+    assigned_to:
+      type: array
+      items:
+        $ref: '../../social/components/profile.yaml#/user_basic'
+    responded_date:
+      type: string
+      format: date-time
+    responder:
+      $ref: '../../social/components/profile.yaml#/user_basic'
+
+project_requests:
+  type: object
+  required:
+    - items
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/project_request'
+
+project_for_verification:
+  type: object
+  required:
+    - entity_id
+    - title
+    - request_from
+    - verification_status
+  properties:
+    entity_id:
+      type: string
+      format: uuid
+    title:
+      type: string
+    request_from:
+      $ref: '../../social/components/profile.yaml#/user_basic'
+    verification_status:
+      $ref: '../verification_statuses.yaml#/verification_status'
+    verification_message:
+      type: string

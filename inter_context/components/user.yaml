@@ -1,0 +1,300 @@
+full_user_update_request:
+  type: object
+  properties:
+    profile:
+      $ref: '#/general_profile_update_request'
+    organization:
+      $ref: '#/organization_update_request'
+    individual:
+      $ref: '#/individual_update_request'
+    patient:
+      $ref: '#/patient_update_request'
+    doctor:
+      $ref: '#/doctor'
+    med_staff:
+      $ref: '#/med_staff'
+    researcher:
+      $ref: '#/researcher'
+
+full_user:
+  allOf:
+    - $ref: '../../social/components/profile.yaml#/user_extended'
+    - type: object
+      required:
+        - profile
+      properties:
+        profile:
+          $ref: '#/general_profile_data'
+        organization:
+          $ref: '#/organization'
+        individual:
+          $ref: '#/individual'
+        patient:
+          $ref: '#/patient'
+        doctor:
+          $ref: '#/doctor'
+        med_staff:
+          $ref: '#/med_staff'
+        researcher:
+          $ref: '#/researcher'
+
+general_profile_data:
+  type: object
+  properties:
+    email:
+      type: string
+    verified_email:
+      type: string
+    phone_number:
+      type: string
+    location:
+      $ref: '../../components/variables.yaml#/components/schemas/location'
+    about:
+      type: string
+    zip_code:
+      type: string
+
+general_profile_update_request:
+  type: object
+  properties:
+    email:
+      type: string
+    image_url:
+      type: string
+    location:
+      $ref: '../../components/variables.yaml#/components/schemas/location'
+    about:
+      type: string
+    viewport:
+      $ref: '../../components/variables.yaml#/components/schemas/viewport'
+  required:
+    - location
+
+researcher:
+  type: object
+  properties:
+    organization_which_represented:
+      type: array
+      items:
+        $ref: '../../components/variables.yaml#/components/schemas/organization_link'
+    diseases:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/disease'
+    specialty:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+  required:
+    - organization_which_represented
+    - diseases
+    - specialty
+
+individual:
+  type: object
+  properties:
+    gender:
+      type: string
+    date_of_birth:
+      type: string
+    first_name:
+      type: string
+    last_name:
+      type: string
+    middle_name:
+      type: string
+    mothers_maiden_name:
+      type: string
+    suffix:
+      $ref: '#/suffixes'
+    language:
+      type: array
+      items:
+        type: string
+
+individual_update_request:
+  type: object
+  properties:
+    alias:
+      type: string
+    gender:
+      type: string
+    date_of_birth:
+      type: string
+    first_name:
+      type: string
+    last_name:
+      type: string
+    middle_name:
+      type: string
+    mothers_maiden_name:
+      type: string
+    suffix:
+      $ref: '#/suffixes'
+    language:
+      type: array
+      items:
+        type: string
+  required:
+    - alias
+
+patient_data:
+  type: object
+  properties:
+    # TODO: Should be remade to boolean!!
+    insured:
+      type: string
+    insurance_carrier_text:
+      type: string
+    insurance_carrier_checkbox:
+      type: string
+    ethnicity:
+      type: string
+    place_of_birth:
+      type: string
+    diseases:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/disease'
+
+patient_update_request:
+  allOf:
+    - $ref: '#/patient_data'
+
+patient:
+  allOf:
+    - $ref: '#/patient_data'
+    - type: object
+      properties:
+        patient_id:
+          type: string
+
+doctor:
+  type: object
+  properties:
+    specialty:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+    education:
+      type: string
+    fellowship:
+      type: string
+    treatment_of_diseases:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/disease'
+    organization_which_represented:
+      type: array
+      items:
+        $ref: '../../components/variables.yaml#/components/schemas/organization_link'
+  required:
+    - specialty
+    - education
+    - treatment_of_diseases
+    - organization_which_represented
+
+med_staff:
+  type: object
+  properties:
+    specialty:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+    education:
+      type: string
+    fellowship:
+      type: string
+    treatment_of_diseases:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/disease'
+    organization_which_represented:
+      type: array
+      items:
+        $ref: '../../components/variables.yaml#/components/schemas/organization_link'
+  required:
+    - specialty
+    - education
+    - organization_which_represented
+
+organization_type:
+  type: object
+  required:
+    - type
+  properties:
+    type:
+      $ref: '#/organization_type_kind'
+    custom_organization_type_name:
+      type: string
+      description: Must be filled in if the type property is set to 'custom'.
+  example:
+    type: custom
+    custom_organization_type_name: Custom organization type
+
+organization:
+  type: object
+  properties:
+    specialty:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+    organization_type:
+      $ref: '#/organization_type'
+    website:
+      type: string
+    alternative_names:
+      type: array
+      items:
+        type: string
+  required:
+    - specialty
+
+organization_update_request:
+  type: object
+  properties:
+    specialty:
+      type: array
+      items:
+        $ref: '../../common/enums.yaml#/specialty'
+    organization_type:
+      $ref: '#/organization_type'
+    website:
+      type: string
+    organization_name:
+      type: string
+    alternative_names:
+      type: array
+      items:
+        type: string
+  required:
+    - organization_name
+    - specialty
+
+organization_basic_view:
+  type: object
+  required:
+    - entity_id
+    - organization_name
+  properties:
+    entity_id:
+      type: string
+    organization_name:
+      type: string
+
+suffixes:
+  type: string
+  enum: [Mr., Ms., Mrs., Sr., Jr., Dr., PhD., Esq., '']
+
+organization_type_kind:
+  type: string
+  enum: [foundation, institute, hospital, research_center, custom]
+
+user_id:
+  type: object
+  required:
+    - user_id
+  properties:
+    user_id:
+      type: string
+      description: User ID

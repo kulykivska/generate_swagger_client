@@ -1,0 +1,56 @@
+get:
+  summary: View post
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/post_id'
+  operationId: rest.social.posts.get
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully fetched a post
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/post.yaml#/post'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+put:
+  summary: Edit post
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/post_id'
+  operationId: rest.social.posts.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/post.yaml#/update_post_request'
+  responses:
+    200:
+      description: Successfully edited a post
+      content:
+        application/json:
+          schema:
+            $ref: '../social/components/post.yaml#/post'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+delete:
+  summary: Remove post
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/post_id'
+  operationId: rest.social.posts.delete
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successfully removed a post
+      content:
+        application/json:
+          schema:
+            $ref: '../common/empty_response.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

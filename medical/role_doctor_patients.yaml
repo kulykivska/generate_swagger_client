@@ -1,0 +1,47 @@
+get:
+  summary: Fetches doctor's patients
+  operationId: rest.dummy.get
+  security:
+    - session: []
+  responses:
+    200:
+      description: Successful fetch
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - items
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '../medical/components/patient.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+
+post:
+  summary: Sends a request to add a patient
+  operationId: rest.dummy.past
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - patient_id
+          properties:
+            patient_id:
+              type: string
+  responses:
+    201:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../medical/components/patient.yaml'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'

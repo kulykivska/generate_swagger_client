@@ -1,0 +1,22 @@
+put:
+  summary: Share file
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/file_descriptor_id'
+  operationId: rest.file_storage.file_sharing.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../files/components/file.yaml#/share_request'
+  responses:
+    204:
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'

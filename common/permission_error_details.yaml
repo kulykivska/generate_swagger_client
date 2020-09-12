@@ -1,0 +1,17 @@
+type: object
+required:
+  - entity_type
+  - entity_id
+  - action
+properties:
+  entity_type:
+    description: Kind of entity, against which security permissions are violated
+    type: string
+    enum: [ User, Community, Project, Post, Comment, Conversation, File, Folder, File Activity Log ]
+  entity_id:
+    description: Identifier of the entity, against which security permissions are violated
+    type: string
+  action:
+    description: Name of an attempted operation on the entity
+    type: string
+    example: "View"

@@ -1,0 +1,337 @@
+openapi: 3.0.1
+
+info:
+  title: project REST API
+  description: Specification of REST API for Project
+  version: 0.1.0
+
+servers:
+  - url: 'https://localhost:8080'
+
+paths:
+  # Inter-context
+
+  /users:
+    $ref: './inter_context/users.yaml'
+  /users/counsel:
+    $ref: './inter_context/users_counsel.yaml'
+
+  /user/{userId}:
+    $ref: './inter_context/user.yaml'
+
+  /user/change_password:
+    $ref: './inter_context/user_change_password.yaml'
+
+  # Beginning of AUTH domain
+
+  /auth/login:
+    $ref: './auth/login.yaml'
+
+  /auth/logout:
+    $ref: './auth/logout.yaml'
+
+  /auth/prolong:
+    $ref: './auth/prolong.yaml'
+
+  /auth/signup/individual:
+    $ref: './auth/signup_individual.yaml'
+
+  /auth/signup/organization:
+    $ref: './auth/signup_organization.yaml'
+
+  /auth/{userId}/verify_email:
+    $ref: './auth/verify_email.yaml'
+
+  # Reset and change password
+
+  /auth/reset_password:
+    $ref: './auth/reset_password.yaml'
+
+  /auth/validate_reset_password_token:
+    $ref: './auth/validate_reset_password_token.yaml'
+
+  # resend verification email
+
+  /auth/resend_verification_email:
+    $ref: './auth/resend_verification_email.yaml'
+
+  # One time code
+
+  /auth/verify_one_time_code:
+    $ref: './auth/verify_one_time_code.yaml'
+
+  /auth/request_one_time_code:
+    $ref: './auth/request_one_time_code.yaml'
+
+  # Beginning of Search ATTRIBUTES context
+  /search/results:
+    $ref: './search/results.yaml'
+
+  /search/aggregations:
+    $ref: './search/aggregations.yaml'
+
+  /search/attributes:
+    $ref: './search/attributes.yaml'
+
+  /search/suggest/{attributeName}:
+    $ref: './search/suggest.yaml'
+
+  # Beginning of SOCIAL context
+
+  # Connections
+
+  /social/profile/connections:
+    $ref: './social/connections.yaml'
+
+  /social/profile/connections_counters:
+    $ref: './social/connections_counters.yaml'
+
+  /social/profile/verified_connections:
+    $ref: './social/connections_verified.yaml'
+
+  /social/profile/received_connections_requests:
+    $ref: './social/connections_received.yaml'
+
+  /social/profile/sent_connections_requests:
+    $ref: './social/connections_requests.yaml'
+
+  /social/profile/verified_connections/{userId}:
+    $ref: './social/manage_connections_verified.yaml'
+
+  /social/profile/received_connections_requests/{userId}:
+    $ref: './social/manage_connections_received.yaml'
+
+  /social/profile/sent_connections_requests/{userId}:
+    $ref: './social/manage_connections_requests.yaml'
+
+  /social/profile/connection/{userId}:
+    $ref: './social/manage_connection.yaml'
+
+  # Conversations & Message Channels
+
+  /social/profile/messaging/access:
+    $ref: './social/profile_messaging_access.yaml'
+
+  /social/profile/messaging/notify_channel:
+    $ref: './social/profile_messaging_notify_channel.yaml'
+
+  /social/conversations:
+    $ref: './social/conversations.yaml'
+
+  /social/conversations/{conversationId}/title:
+    $ref: './social/conversation_title.yaml'
+
+  # Communities
+
+  /social/communities:
+    $ref: './social/communities.yaml'
+
+  /social/{userId}/communities:
+    $ref: './social/user_communities.yaml'
+
+  /social/community/{communityId}:
+    $ref: './social/community.yaml'
+
+  /social/community/{communityId}/leaders:
+    $ref: './social/community_leaders.yaml'
+
+  /social/community/{communityId}/members:
+    $ref: './social/community_members.yaml'
+
+  /social/community/{communityId}/member/{userId}:
+    $ref: './social/community_member.yaml'
+
+  /social/community/{communityId}/requests:
+    $ref: './social/community_user_requests.yaml'
+
+  /social/community/{communityId}/sent_invitations:
+    $ref: './social/community_sent_invitations.yaml'
+
+  /social/community/{communityId}/involvement_counters:
+    $ref: './social/community_involvement_counters.yaml'
+
+  /social/communities/invitations:
+    $ref: './social/user_communities_got_invitations.yaml'
+
+  /social/communities/sent_requests:
+    $ref: './social/user_communities_sent_requests.yaml'
+
+  /social/communities/involvement_counters:
+    $ref: './social/user_communities_involvement_counters.yaml'
+
+  /social/community/{communityId}/projects:
+    $ref: './social/community_projects.yaml'
+
+  # Projects
+
+  /social/projects:
+    $ref: './social/projects.yaml'
+
+  /social/projects/requests:
+    $ref: './social/user_projects_sent_requests.yaml'
+
+  /social/projects/invitations:
+    $ref: './social/user_projects_got_invitations.yaml'
+
+  /social/projects/involvement_counters:
+    $ref: './social/user_projects_involvement_counters.yaml'
+
+  /social/projects/owner/invitations:
+    $ref: './social/user_projects_got_owner_invitations.yaml'
+
+  /social/{userId}/projects:
+    $ref: './social/user_projects.yaml'
+
+  /social/project/{projectId}:
+    $ref: './social/project.yaml'
+
+  /social/project/{projectId}/leaders:
+    $ref: './social/project_leaders.yaml'
+
+  /social/project/{projectId}/members:
+    $ref: './social/project_members.yaml'
+
+  /social/project/{projectId}/member/{userId}:
+    $ref: './social/project_member.yaml'
+
+  /social/project/{projectId}/participants/invitations:
+    $ref: './social/project_participants_sent_invitations.yaml'
+
+  /social/project/{projectId}/participants/requests:
+    $ref: './social/project_participants_requests.yaml'
+
+  /social/project/{projectId}/participants/involvement_counters:
+    $ref: './social/project_participants_involvement_counters.yaml'
+
+  /social/project/{projectId}/participants/request/{userId}:
+    $ref: './social/project_participants_user_request.yaml'
+
+  /social/project/{projectId}/owners/invitations:
+    $ref: './social/project_owners_sent_invitations.yaml'
+
+  # Total count of user's social groups
+  /social/user_groups/stats:
+    $ref: './social/user_groups_stats.yaml'
+
+  # Posts
+
+  /social/posts:
+    $ref: './social/posts.yaml'
+
+  /social/post/{postId}:
+    $ref: './social/post.yaml'
+
+  /social/profile/{userId}/posts:
+    $ref: './social/profile_posts.yaml'
+
+  /social/project/{projectId}/posts:
+    $ref: './social/project_posts.yaml'
+
+  /social/community/{communityId}/posts:
+    $ref: './social/community_posts.yaml'
+
+  # Comments
+
+  /comment/{commentId}/reply:
+    $ref: './comments/reply_comment.yaml'
+
+  /comment/{commentId}:
+    $ref: './comments/delete_comment.yaml'
+
+  /social/post/{postId}/comments:
+    $ref: './social/post_comments.yaml'
+
+  /social/post/{postId}/comments_list:
+    $ref: './social/post_comments_list.yaml'
+
+  # Beginning of MEDICAL context
+
+  # Beginning of MEDICAL ROLES
+  # /medical/role/patient/doctors:
+  #   $ref: './medical/role_patient_doctors.yaml'
+  # /medical/role/patient/doctors/{doctorId}:
+  # $ref: './medical/role_patient_doctor.yaml'
+  # /medical/role/guardian/ward_patients:
+  #   $ref: './medical/guardian_ward_patients.yaml'
+  # /medical/role/guardian/patients:
+  #   $ref: './medical/guardian_patients.yaml'
+  # Common
+  # /search:
+  #   $ref: './common/search.yaml'
+
+  # Beginning of Admin verification
+  /admin/verification/projects:
+    $ref: './admin/verification_project_requests.yaml'
+  /admin/verification/project/{requestId}:
+    $ref: './admin/verification_project_request.yaml'
+
+  # Beginning of FILE STORAGE
+  /files/bulk_delete:
+    $ref: './files/bulk_delete.yaml'
+
+  /files/generate:
+    $ref: './files/generate_file_url.yaml'
+
+  /files/{file_descriptor_id}/download:
+    $ref: './files/generate_download_file_url.yaml'
+
+  /files/activity_log:
+    $ref: './files/files_activity_log.yaml'
+
+  /files/{file_descriptor_id}/activity_log:
+    $ref: './files/file_activity_log.yaml'
+
+  /files/{file_descriptor_id}:
+    $ref: './files/manage_file.yaml'
+
+  /folders/{folder_descriptor_id}/:
+    $ref: './files/manage_folders.yaml'
+
+  /folders:
+    $ref: './files/create_folder.yaml'
+
+  /files/{file_descriptor_id}/share:
+    $ref: './files/share_file.yaml'
+
+  /folders/{folder_descriptor_id}/share:
+    $ref: './files/share_folder.yaml'
+
+  /files/{file_descriptor_id}/shareable_link:
+    $ref: './files/file_shareable_link.yaml'
+
+  /files/size:
+    $ref: './files/file_storage_size.yaml'
+
+  /folders/shared:
+    $ref: './files/file_storage_shared_items.yaml'
+
+  # Beginning of manage blocked
+  /profile/{userId}/block:
+    $ref: './social/profile_block.yaml'
+
+  /profile/{userId}/blocked:
+    $ref: './social/profile_blocked.yaml'
+
+  # Feedback
+
+  /feedback:
+    $ref: './feedback/add_feedback.yaml'
+
+  # Map
+
+  /statistics:
+    $ref: './map/statistics.yaml'
+
+  /map/layer/covid_map:
+    $ref: './map/covid_info.yaml'
+
+  /map/layer/covid_vaccinations_map:
+    $ref: './map/covid_vaccinations_info.yaml'
+
+components:
+  securitySchemes:
+    session:
+      type: http
+      scheme: bearer
+      bearerFormat: com.jul.project
+      x-bearerInfoFunc: application.decode_session_token

@@ -1,0 +1,8 @@
+allOf:
+  - $ref: '../common/client_error_response.yaml'
+  - type: object
+    required:
+      - details
+    properties:
+      details:
+        $ref: './permission_error_details.yaml'

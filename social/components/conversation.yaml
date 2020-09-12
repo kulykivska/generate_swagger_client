@@ -1,0 +1,50 @@
+conversation:
+  type: object
+  required:
+    - entity_id
+    - title
+    - kind
+    - participants
+    - messaging_channel_basic
+  properties:
+    entity_id:
+      type: string
+      description: Conversation ID
+    title:
+      type: string
+      description: Conversation title text
+    kind:
+      $ref: '#/conversation_kinds'
+    participants:
+      $ref: './profile.yaml#/basic_users_as_list'
+    messaging_channel_basic:
+      $ref: './messaging_channel.yaml#/messaging_channel_basic'
+
+conversation_kinds:
+  type: string
+  enum: [Private, Group]
+
+create_conversation_request:
+  type: object
+  required:
+    - participant_user_ids
+    - kind
+  properties:
+    title:
+      type: string
+    participant_user_ids:
+      type: array
+      items:
+        type: string
+      description: User IDs
+    kind:
+      $ref: '#/conversation_kinds'
+
+update_conversation_title_request:
+  type: object
+  required:
+    - title
+  properties:
+    title:
+      type: string
+

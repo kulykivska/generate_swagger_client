@@ -1,0 +1,17 @@
+type: object
+required:
+  - title
+  - description
+properties:
+  title:
+    type: string
+  description:
+    type: string
+  data:
+    type: array
+    items:
+      $ref: './client_error_data.yaml'
+  links:
+    type: array
+    items:
+      $ref: './client_error_link.yaml'

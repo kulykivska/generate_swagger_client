@@ -1,0 +1,39 @@
+put:
+  summary: Updates the title of the conversation
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/conversation_id'
+  operationId: rest.social.conversation_title.put
+  security:
+    - session: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../social/components/conversation.yaml#/update_conversation_title_request'
+  responses:
+    200:
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'
+
+delete:
+  summary: Resets the title of the conversation
+  parameters:
+    - $ref: '../components/components.yaml#/components/parameters/conversation_id'
+  operationId: rest.social.conversation_title.delete
+  security:
+    - session: []
+  responses:
+    200:
+      $ref: '../components/components.yaml#/components/responses/EmptyResponse'
+    403:
+      $ref: '../components/components.yaml#/components/responses/PermissionError'
+    404:
+      $ref: '../components/components.yaml#/components/responses/404NotFound'
+    default:
+      $ref: '../components/components.yaml#/components/responses/UnexpectedError'
